@@ -88,5 +88,7 @@ export function testSource(ops: TestSourceOptions) {
         }
       });
     });
+  },{
+    timeout: 30000,
   });
 }

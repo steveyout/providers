@@ -1,92 +1,58 @@
-import { load } from 'cheerio';
+import { MOVIES } from 'wikiextensions-flix';
 
 import { MovieMedia, ShowMedia } from '@/entrypoint/utils/media';
 import { flixHqBase } from '@/providers/sources/flixhq/common';
+import axios from '@/utils/axios';
 import { ScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
 
-export async function getFlixhqSourceDetails(ctx: ScrapeContext, sourceId: string): Promise<string> {
-  const jsonData = await ctx.proxiedFetcher<Record<string, any>>(`/ajax/sources/${sourceId}`, {
-    baseUrl: flixHqBase,
-  });
+export async function getFlixhqSourceDetails(ctx: ScrapeContext, sourceId: string, id: string): Promise<string> {
+  const flixhq = new MOVIES.FlixHQ();
+  const videoResult: { source: string; subtitles: string[] } = { source: '', subtitles: [] };
+  const servers = await flixhq.fetchEpisodeServers(id, sourceId);
+  const i = servers.findIndex((s: { name: string }) => s.name === 'UpCloud' || 'VidCloud');
+  const { data } = await axios.get(`${flixHqBase}/ajax/sources/${servers[i].id}`);
+  const videoUrl = new URL(data.link);
+  const mid = videoUrl.href.split('/').pop()?.split('?')[0];
+  const sources = await axios.post(`https://youplex.site/api/sources/upcloud`, { id: mid });
+  videoResult.source = sources.data.source;
+  videoResult.subtitles = sources.data.subtitle.map((s: { file: string; label: string; default: boolean }) => ({
+    url: s.file ? s.file : s,
+    lang: s.label ? s.label : s,
+    default: s.default && s.default,
+  }));
+  if (!videoResult.source) throw new NotFoundError('source not found');
 
-  return jsonData.link;
+  return videoResult.source;
 }
 
 export async function getFlixhqMovieSources(ctx: ScrapeContext, media: MovieMedia, id: string) {
-  const episodeParts = id.split('-');
-  const episodeId = episodeParts[episodeParts.length - 1];
+  const flixhq = new MOVIES.FlixHQ();
+  const movie = await flixhq.fetchMovieInfo(id);
+  if (!movie.episodes) throw new NotFoundError('movie not found');
 
-  const data = await ctx.proxiedFetcher<string>(`/ajax/movie/episodes/${episodeId}`, {
-    baseUrl: flixHqBase,
+  const sourceLinks = movie.episodes.map((episode) => {
+    return {
+      embed: episode.title,
+      episodeId: episode.id,
+    };
   });
-
-  const doc = load(data);
-  const sourceLinks = doc('.nav-item > a')
-    .toArray()
-    .map((el) => {
-      const query = doc(el);
-      const embedTitle = query.attr('title');
-      const linkId = query.attr('data-linkid');
-      if (!embedTitle || !linkId) throw new Error('invalid sources');
-      return {
-        embed: embedTitle,
-        episodeId: linkId,
-      };
-    });
 
   return sourceLinks;
 }
 
+// get show sources
 export async function getFlixhqShowSources(ctx: ScrapeContext, media: ShowMedia, id: string) {
-  const episodeParts = id.split('-');
-  const episodeId = episodeParts[episodeParts.length - 1];
+  const flixhq = new MOVIES.FlixHQ();
+  const movie = await flixhq.fetchMovieInfo(id);
+  if (!movie.episodes) throw new NotFoundError('season not found');
 
-  const seasonsListData = await ctx.proxiedFetcher<string>(`/ajax/season/list/${episodeId}`, {
-    baseUrl: flixHqBase,
+  const sourceLinks = movie.episodes.map((episode) => {
+    return {
+      embed: episode.title,
+      episodeId: episode.id,
+    };
   });
-
-  const seasonsDoc = load(seasonsListData);
-  const season = seasonsDoc('.dropdown-item')
-    .toArray()
-    .find((el) => seasonsDoc(el).text() === `Season ${media.season.number}`)?.attribs['data-id'];
-
-  if (!season) throw new NotFoundError('season not found');
-
-  const seasonData = await ctx.proxiedFetcher<string>(`/ajax/season/episodes/${season}`, {
-    baseUrl: flixHqBase,
-  });
-  const seasonDoc = load(seasonData);
-  const episode = seasonDoc('.nav-item > a')
-    .toArray()
-    .map((el) => {
-      return {
-        id: seasonDoc(el).attr('data-id'),
-        title: seasonDoc(el).attr('title'),
-      };
-    })
-    .find((e) => e.title?.startsWith(`Eps ${media.episode.number}`))?.id;
-
-  if (!episode) throw new NotFoundError('episode not found');
-
-  const data = await ctx.proxiedFetcher<string>(`/ajax/episode/servers/${episode}`, {
-    baseUrl: flixHqBase,
-  });
-
-  const doc = load(data);
-
-  const sourceLinks = doc('.nav-item > a')
-    .toArray()
-    .map((el) => {
-      const query = doc(el);
-      const embedTitle = query.attr('title');
-      const linkId = query.attr('data-id');
-      if (!embedTitle || !linkId) throw new Error('invalid sources');
-      return {
-        embed: embedTitle,
-        episodeId: linkId,
-      };
-    });
 
   return sourceLinks;
 }

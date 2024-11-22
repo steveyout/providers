@@ -21,17 +21,10 @@ export const flixhqScraper = makeSourcerer({
     const embeds: SourcererEmbed[] = [];
 
     for (const source of sources) {
-      if (source.embed.toLowerCase() === 'upcloud') {
-        embeds.push({
-          embedId: upcloudScraper.id,
-          url: await getFlixhqSourceDetails(ctx, source.episodeId),
-        });
-      } else if (source.embed.toLowerCase() === 'vidcloud') {
-        embeds.push({
-          embedId: vidCloudScraper.id,
-          url: await getFlixhqSourceDetails(ctx, source.episodeId),
-        });
-      }
+      embeds.push({
+        embedId: upcloudScraper.id,
+        url: await getFlixhqSourceDetails(ctx, source.episodeId, id),
+      });
     }
 
     return {
@@ -46,17 +39,10 @@ export const flixhqScraper = makeSourcerer({
 
     const embeds: SourcererEmbed[] = [];
     for (const source of sources) {
-      if (source.embed.toLowerCase() === 'server upcloud') {
-        embeds.push({
-          embedId: upcloudScraper.id,
-          url: await getFlixhqSourceDetails(ctx, source.episodeId),
-        });
-      } else if (source.embed.toLowerCase() === 'server vidcloud') {
-        embeds.push({
-          embedId: vidCloudScraper.id,
-          url: await getFlixhqSourceDetails(ctx, source.episodeId),
-        });
-      }
+      embeds.push({
+        embedId: vidCloudScraper.id,
+        url: await getFlixhqSourceDetails(ctx, source.episodeId, id),
+      });
     }
 
     return {
