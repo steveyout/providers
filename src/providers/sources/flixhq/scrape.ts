@@ -35,12 +35,14 @@ export async function getFlixhqMovieSources(ctx: ScrapeContext, media: MovieMedi
   });
   if (!movie.episodes) throw new NotFoundError('movie not found');
 
-  return movie.episodes.map((episode: { title: string; id: string }) => {
+  const sourceLinks = movie.episodes.map((episode: { title: string; id: string }) => {
     return {
       embed: episode.title,
       episodeId: episode.id,
     };
   });
+
+  return sourceLinks;
 }
 
 // get show sources
@@ -52,10 +54,12 @@ export async function getFlixhqShowSources(ctx: ScrapeContext, media: ShowMedia,
   });
   if (!movie.episodes) throw new NotFoundError('season not found');
 
-  return movie.episodes.map((episode: { title: string; id: string }) => {
+  const sourceLinks = movie.episodes.map((episode: { title: string; id: string }) => {
     return {
       embed: episode.title,
       episodeId: episode.id,
     };
   });
+
+  return sourceLinks;
 }
