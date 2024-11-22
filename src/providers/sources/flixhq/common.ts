@@ -1,1 +1,1 @@
-export const flixHqBase = 'https://flixhq.to';
+export const flixHqBase = 'https://youplex.site';

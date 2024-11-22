@@ -1,58 +1,61 @@
-import { MOVIES } from 'wikiextensions-flix';
-
 import { MovieMedia, ShowMedia } from '@/entrypoint/utils/media';
 import { flixHqBase } from '@/providers/sources/flixhq/common';
-import axios from '@/utils/axios';
 import { ScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
 
 export async function getFlixhqSourceDetails(ctx: ScrapeContext, sourceId: string, id: string): Promise<string> {
-  const flixhq = new MOVIES.FlixHQ();
-  const videoResult: { source: string; subtitles: string[] } = { source: '', subtitles: [] };
-  const servers = await flixhq.fetchEpisodeServers(id, sourceId);
-  const i = servers.findIndex((s: { name: string }) => s.name === 'UpCloud' || 'VidCloud');
-  const { data } = await axios.get(`${flixHqBase}/ajax/sources/${servers[i].id}`);
-  const videoUrl = new URL(data.link);
-  const mid = videoUrl.href.split('/').pop()?.split('?')[0];
-  const sources = await axios.post(`https://youplex.site/api/sources/upcloud`, { id: mid });
-  videoResult.source = sources.data.source;
-  videoResult.subtitles = sources.data.subtitle.map((s: { file: string; label: string; default: boolean }) => ({
-    url: s.file ? s.file : s,
-    lang: s.label ? s.label : s,
-    default: s.default && s.default,
-  }));
-  if (!videoResult.source) throw new NotFoundError('source not found');
-
-  return videoResult.source;
+  let sources;
+  if (id.includes('movie')) {
+    const episodeParts = id.split('movie/');
+    const episodeId = episodeParts[1];
+    sources = await ctx.proxiedFetcher(`/api/movie/${episodeId}`, {
+      baseUrl: flixHqBase,
+    });
+  } else if (id.includes('tv')) {
+    const episodeParts = id.split('tv/');
+    const episodeId = episodeParts[1];
+    sources = await ctx.proxiedFetcher(`/api/series/${episodeId}`, {
+      baseUrl: flixHqBase,
+    });
+  } else {
+    throw new NotFoundError('source not found');
+  }
+  const stream =
+    sources.sources.find(
+      (source: { quality: string | string[] }) => source.quality && source.quality.includes('auto'),
+    ) || sources.sources[0];
+  return stream.url;
 }
 
 export async function getFlixhqMovieSources(ctx: ScrapeContext, media: MovieMedia, id: string) {
-  const flixhq = new MOVIES.FlixHQ();
-  const movie = await flixhq.fetchMovieInfo(id);
+  const episodeParts = id.split('movie/');
+  const episodeId = episodeParts[1];
+  const movie = await ctx.proxiedFetcher(`/api/movie/${episodeId}`, {
+    baseUrl: flixHqBase,
+  });
   if (!movie.episodes) throw new NotFoundError('movie not found');
 
-  const sourceLinks = movie.episodes.map((episode) => {
+  return movie.episodes.map((episode: { title: string; id: string }) => {
     return {
       embed: episode.title,
       episodeId: episode.id,
     };
   });
-
-  return sourceLinks;
 }
 
 // get show sources
 export async function getFlixhqShowSources(ctx: ScrapeContext, media: ShowMedia, id: string) {
-  const flixhq = new MOVIES.FlixHQ();
-  const movie = await flixhq.fetchMovieInfo(id);
+  const episodeParts = id.split('tv/');
+  const episodeId = episodeParts[1];
+  const movie = await ctx.proxiedFetcher(`/api/series/${episodeId}`, {
+    baseUrl: flixHqBase,
+  });
   if (!movie.episodes) throw new NotFoundError('season not found');
 
-  const sourceLinks = movie.episodes.map((episode) => {
+  return movie.episodes.map((episode: { title: string; id: string }) => {
     return {
       embed: episode.title,
       episodeId: episode.id,
     };
   });
-
-  return sourceLinks;
 }

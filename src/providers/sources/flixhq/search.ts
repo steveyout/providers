@@ -1,10 +1,11 @@
 import { MovieMedia, ShowMedia } from '@/entrypoint/utils/media';
+import { flixHqBase } from '@/providers/sources/flixhq/common';
 import { compareMedia, compareTitle } from '@/utils/compare';
 import { ScrapeContext } from '@/utils/context';
 
 export async function getFlixhqId(ctx: ScrapeContext, media: MovieMedia | ShowMedia): Promise<string | null> {
-  const search = await ctx.proxiedFetcher(`/search?query=${media.title.replaceAll(/[^a-z0-9A-Z]/g, '-')}`, {
-    baseUrl: 'https://youplex.site/api',
+  const search = await ctx.proxiedFetcher(`/api/search?query=${media.title.replaceAll(/[^a-z0-9A-Z]/g, '-')}`, {
+    baseUrl: flixHqBase,
   });
   const items = search.results.map((result: { id: string; title: string; releaseDate: string; seasons: number }) => {
     const id = result.id;
