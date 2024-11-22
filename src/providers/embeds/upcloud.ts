@@ -60,7 +60,7 @@ export const upcloudScraper = makeEmbed({
   id: 'upcloud',
   name: 'UpCloud',
   rank: 200,
-  disabled: true,
+  disabled: false,
   async scrape(ctx) {
     // Example url: https://dokicloud.one/embed-4/{id}?z=
     const parsedUrl = new URL(ctx.url.replace('embed-5', 'embed-4'));

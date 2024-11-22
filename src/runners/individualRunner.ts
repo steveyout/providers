@@ -82,7 +82,6 @@ export async function scrapeInvidualSource(
           ops.media.type === 'show' ? `.${ops.media.season.number}.${ops.media.episode.number}` : ''
         }`,
       )}`;
-
   if ((!output.stream || output.stream.length === 0) && output.embeds.length === 0)
     throw new NotFoundError('No streams found');
 
