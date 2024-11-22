@@ -1,7 +1,6 @@
 import { flags } from '@/entrypoint/utils/targets';
 import { SourcererEmbed, makeSourcerer } from '@/providers/base';
 import { upcloudScraper } from '@/providers/embeds/upcloud';
-import { vidCloudScraper } from '@/providers/embeds/vidcloud';
 import { getFlixhqMovieSources, getFlixhqShowSources, getFlixhqSourceDetails } from '@/providers/sources/flixhq/scrape';
 import { getFlixhqId } from '@/providers/sources/flixhq/search';
 import { NotFoundError } from '@/utils/errors';
@@ -40,7 +39,7 @@ export const flixhqScraper = makeSourcerer({
     const embeds: SourcererEmbed[] = [];
     for (const source of sources) {
       embeds.push({
-        embedId: vidCloudScraper.id,
+        embedId: upcloudScraper.id,
         url: await getFlixhqSourceDetails(ctx, source.episodeId, id),
       });
     }

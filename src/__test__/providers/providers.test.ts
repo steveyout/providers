@@ -9,7 +9,7 @@ dotenv.config();
 testSource({
   source: flixhqScraper,
   testSuite: [testMedia.arcane],
-  types: ['standard'],
+  types: ['proxied'],
   debug:true,
   expect: {
     embeds: 1,
