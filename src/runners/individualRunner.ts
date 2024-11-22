@@ -59,7 +59,6 @@ export async function scrapeInvidualSource(
     output.stream = output.stream
       .filter((stream) => isValidStream(stream))
       .filter((stream) => flagsAllowedInFeatures(ops.features, stream.flags));
-
     output.stream = output.stream.map((stream) =>
       requiresProxy(stream) && ops.proxyStreams ? setupProxy(stream) : stream,
     );

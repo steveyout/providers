@@ -1,4 +1,5 @@
 import { MovieMedia, ShowMedia } from '@/entrypoint/utils/media';
+import { Caption, captionTypes } from '@/providers/captions';
 import { flixHqBase } from '@/providers/sources/flixhq/common';
 import { ScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
@@ -35,10 +36,25 @@ export async function getFlixhqMovieSources(ctx: ScrapeContext, media: MovieMedi
   });
   if (!movie.episodes) throw new NotFoundError('movie not found');
 
+  const stream =
+    movie.sources.find((source: { quality: string | string[] }) => source.quality && source.quality.includes('auto')) ||
+    movie.sources[0];
+  const captions = movie.subtitles.map((subtitle: { lang: string; url: string }) => {
+    return {
+      type: captionTypes.vtt,
+      id: subtitle.lang,
+      opensubtitles: false,
+      url: subtitle.url,
+      hasCorsRestrictions: false,
+      language: subtitle.lang,
+    };
+  });
   const sourceLinks = movie.episodes.map((episode: { title: string; id: string }) => {
     return {
       embed: episode.title,
       episodeId: episode.id,
+      stream: stream.url,
+      captions,
     };
   });
 

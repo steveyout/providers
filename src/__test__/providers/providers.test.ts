@@ -12,6 +12,6 @@ testSource({
   types: ['proxied'],
   debug:true,
   expect: {
-    embeds: 1,
+    streams: 1,
   },
 });
