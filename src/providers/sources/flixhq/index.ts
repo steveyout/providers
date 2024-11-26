@@ -36,17 +36,19 @@ export const flixhqScraper = makeSourcerer({
     if (!id) throw new NotFoundError('no search results match');
 
     const sources = await getFlixhqShowSources(ctx, ctx.media, id);
-
-    const embeds: SourcererEmbed[] = [];
+    const streams: any[] = [];
     for (const source of sources) {
-      embeds.push({
-        embedId: upcloudScraper.id,
-        url: await getFlixhqSourceDetails(ctx, source.episodeId, id),
+      streams.push({
+        id: 'primary',
+        playlist: source.stream,
+        type: 'hls',
+        flags: [flags.CORS_ALLOWED],
+        captions: source.captions,
       });
     }
-
     return {
-      embeds,
+      embeds: [],
+      stream: streams,
     };
   },
 });

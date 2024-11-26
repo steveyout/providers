@@ -41,14 +41,14 @@ export async function getFlixhqMovieSources(ctx: ScrapeContext, media: MovieMedi
     movie.sources[0];
   const captions = movie.subtitles.map((subtitle: { lang: string; url: string }) => {
     return {
-      type: captionTypes.vtt,
       id: subtitle.lang,
-      opensubtitles: false,
+      type: captionTypes.vtt,
       url: subtitle.url,
       hasCorsRestrictions: false,
       language: subtitle.lang,
     };
   });
+
   const sourceLinks = movie.episodes.map((episode: { title: string; id: string }) => {
     return {
       embed: episode.title,
@@ -68,12 +68,27 @@ export async function getFlixhqShowSources(ctx: ScrapeContext, media: ShowMedia,
   const movie = await ctx.proxiedFetcher(`/api/series/${episodeId}`, {
     baseUrl: flixHqBase,
   });
-  if (!movie.episodes) throw new NotFoundError('season not found');
+  if (!movie.episodes) throw new NotFoundError('movie not found');
+
+  const stream =
+    movie.sources.find((source: { quality: string | string[] }) => source.quality && source.quality.includes('auto')) ||
+    movie.sources[0];
+  const captions = movie.subtitles.map((subtitle: { lang: string; url: string }) => {
+    return {
+      id: subtitle.lang,
+      type: captionTypes.vtt,
+      url: subtitle.url,
+      hasCorsRestrictions: false,
+      language: subtitle.lang,
+    };
+  });
 
   const sourceLinks = movie.episodes.map((episode: { title: string; id: string }) => {
     return {
       embed: episode.title,
       episodeId: episode.id,
+      stream: stream.url,
+      captions,
     };
   });
 

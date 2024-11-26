@@ -8,7 +8,7 @@ dotenv.config();
 
 testSource({
   source: flixhqScraper,
-  testSuite: [testMedia.hamilton],
+  testSuite: [testMedia.arcane],
   types: ['proxied'],
   debug:true,
   expect: {
