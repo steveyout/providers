@@ -13,9 +13,11 @@ export const flixhqScraper = makeSourcerer({
   disabled: false,
   async scrapeMovie(ctx) {
     const id = await getFlixhqId(ctx, ctx.media);
+    ctx.progress(30);
     if (!id) throw new NotFoundError('no search results match');
 
     const sources = await getFlixhqMovieSources(ctx, ctx.media, id);
+    ctx.progress(60);
     const streams: any[] = [];
     for (const source of sources) {
       streams.push({
@@ -33,9 +35,11 @@ export const flixhqScraper = makeSourcerer({
   },
   async scrapeShow(ctx) {
     const id = await getFlixhqId(ctx, ctx.media);
+    ctx.progress(30);
     if (!id) throw new NotFoundError('no search results match');
 
     const sources = await getFlixhqShowSources(ctx, ctx.media, id);
+    ctx.progress(600);
     const streams: any[] = [];
     for (const source of sources) {
       streams.push({
