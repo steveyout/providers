@@ -1,5 +1,5 @@
 import { MovieMedia, ShowMedia } from '@/entrypoint/utils/media';
-import { Caption, captionTypes } from '@/providers/captions';
+import { Caption, captionTypes, labelToLanguageCode } from '@/providers/captions';
 import { flixHqBase } from '@/providers/sources/flixhq/common';
 import { ScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
@@ -40,12 +40,13 @@ export async function getFlixhqMovieSources(ctx: ScrapeContext, media: MovieMedi
     movie.sources.find((source: { quality: string | string[] }) => source.quality && source.quality.includes('auto')) ||
     movie.sources[0];
   const captions = movie.subtitles.map((subtitle: { lang: string; url: string }) => {
+    const language = labelToLanguageCode(subtitle.lang);
     return {
       id: subtitle.lang,
       type: captionTypes.vtt,
       url: subtitle.url,
       hasCorsRestrictions: false,
-      language: subtitle.lang,
+      language,
     };
   });
 
@@ -74,12 +75,13 @@ export async function getFlixhqShowSources(ctx: ScrapeContext, media: ShowMedia,
     movie.sources.find((source: { quality: string | string[] }) => source.quality && source.quality.includes('auto')) ||
     movie.sources[0];
   const captions = movie.subtitles.map((subtitle: { lang: string; url: string }) => {
+    const language = labelToLanguageCode(subtitle.lang);
     return {
       id: subtitle.lang,
       type: captionTypes.vtt,
       url: subtitle.url,
       hasCorsRestrictions: false,
-      language: subtitle.lang,
+      language,
     };
   });
 
