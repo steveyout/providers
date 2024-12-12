@@ -1,13 +1,13 @@
 import { testSource } from './providerUtils';
 import { testMedia } from './testMedia';
 import dotenv from 'dotenv';
-import { flixhqScraper } from '@/providers/sources/flixhq';
+import { eightStreamScraper } from '@/providers/sources/8stream';
 
 
 dotenv.config();
 
 testSource({
-  source: flixhqScraper,
+  source: eightStreamScraper,
   testSuite: [testMedia.arcane],
   types: ['proxied'],
   debug:true,

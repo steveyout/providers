@@ -31,6 +31,7 @@ import { tugaflixScraper } from '@/providers/sources/tugaflix';
 import { vidsrcScraper } from '@/providers/sources/vidsrc/index';
 import { whvxScraper } from '@/providers/sources/whvx';
 import { zoechipScraper } from '@/providers/sources/zoechip';
+import{eightStreamScraper} from '@/providers/sources/8stream';
 
 import {
   autoembedBengaliScraper,
@@ -101,6 +102,7 @@ export function gatherAllSources(): Array<Sourcerer> {
     whvxScraper,
     fsharetvScraper,
     redStarScraper,
+    eightStreamScraper
   ];
 }
 
