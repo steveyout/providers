@@ -7,6 +7,7 @@ import {
 } from '@/providers/sources/8stream/scrape';
 import { getDetails } from '@/providers/sources/8stream/search';
 import { NotFoundError } from '@/utils/errors';
+import { Caption } from '@/providers/captions';
 
 export const eightStreamScraper = makeSourcerer({
   id: '8stream',
@@ -29,6 +30,7 @@ export const eightStreamScraper = makeSourcerer({
         playlist: await fetchSources(ctx, source.stream, key),
         type: 'hls',
         flags: [flags.CORS_ALLOWED],
+        captions: [],
       });
     }
     return {
@@ -45,12 +47,14 @@ export const eightStreamScraper = makeSourcerer({
     const sources = await getEightStreamShowSources(ctx, ctx.media, show);
     ctx.progress(60);
     const streams: any[] = [];
+
     for (const source of sources) {
       streams.push({
         id: 'primary',
         playlist: await fetchSources(ctx, source.stream, key),
         type: 'hls',
         flags: [flags.CORS_ALLOWED],
+        captions: [],
       });
     }
     return {
