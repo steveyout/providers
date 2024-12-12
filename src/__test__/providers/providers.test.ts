@@ -8,7 +8,7 @@ dotenv.config();
 
 testSource({
   source: eightStreamScraper,
-  testSuite: [testMedia.arcane],
+  testSuite: [testMedia.hamilton],
   types: ['proxied'],
   debug:true,
   expect: {

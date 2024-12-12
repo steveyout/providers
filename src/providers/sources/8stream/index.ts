@@ -11,11 +11,12 @@ import { NotFoundError } from '@/utils/errors';
 export const eightStreamScraper = makeSourcerer({
   id: '8stream',
   name: '8stream',
-  rank: 51,
+  rank: 62,
   flags: [flags.CORS_ALLOWED],
   disabled: false,
   async scrapeMovie(ctx) {
     const movie = await getDetails(ctx, ctx.media);
+    const { key } = movie;
     ctx.progress(30);
     if (!movie) throw new NotFoundError('no search results match');
 
@@ -25,10 +26,9 @@ export const eightStreamScraper = makeSourcerer({
     for (const source of sources) {
       streams.push({
         id: 'primary',
-        playlist: source.stream,
+        playlist: await fetchSources(ctx, source.stream, key),
         type: 'hls',
         flags: [flags.CORS_ALLOWED],
-        captions: source.captions,
       });
     }
     return {
@@ -51,7 +51,6 @@ export const eightStreamScraper = makeSourcerer({
         playlist: await fetchSources(ctx, source.stream, key),
         type: 'hls',
         flags: [flags.CORS_ALLOWED],
-        captions: source.captions,
       });
     }
     return {

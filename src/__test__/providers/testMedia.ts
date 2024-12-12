@@ -23,7 +23,7 @@ export const testMedia = {
   hamilton: makeMedia({
     type: 'movie',
     tmdbId: '556574',
-    imdbId: 'tt8503618',
+    imdbId: 'tt1877830',
     releaseYear: 2020,
     title: 'Hamilton',
   }),
