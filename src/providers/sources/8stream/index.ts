@@ -47,7 +47,7 @@ export const eightStreamScraper = makeSourcerer({
     const streams: any[] = [];
     for (const source of sources) {
       streams.push({
-        id: source.id,
+        id: 'primary',
         playlist: await fetchSources(ctx, source.stream, key),
         type: 'hls',
         flags: [flags.CORS_ALLOWED],
