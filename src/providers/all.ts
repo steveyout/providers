@@ -89,7 +89,7 @@ import {
   xprimeVolkswagenEmbed,
 } from './embeds/xprime';
 import { oneServerScraper } from './sources/1server';
-import { EightStreamScraper } from './sources/8stream';
+import { eightStreamScraper } from './sources/8stream';
 import { animeflvScraper } from './sources/animeflv';
 import { cinemaosScraper } from './sources/cinemaos';
 import { coitusScraper } from './sources/coitus';
@@ -141,7 +141,7 @@ export function gatherAllSources(): Array<Sourcerer> {
     coitusScraper,
     streamboxScraper,
     nunflixScraper,
-    EightStreamScraper,
+    eightStreamScraper,
     xprimeScraper,
     ConsumetScraper,
     hianimeScraper,
