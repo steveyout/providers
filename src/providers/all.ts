@@ -18,6 +18,7 @@ import { insertunitScraper } from '@/providers/sources/insertunit';
 import { mp4hydraScraper } from '@/providers/sources/mp4hydra';
 import { tugaflixScraper } from '@/providers/sources/tugaflix';
 import { vidsrcsuScraper } from '@/providers/sources/vidsrcsu';
+import { flixhqScraper } from '@/providers/sources/flixhq';
 
 import {
   oneServerAnimepaheEmbed,
@@ -127,6 +128,7 @@ export function gatherAllSources(): Array<Sourcerer> {
     autoembedScraper,
     tugaflixScraper,
     ee3Scraper,
+    flixhqScraper,
     fsharetvScraper,
     vidsrcsuScraper,
     mp4hydraScraper,
