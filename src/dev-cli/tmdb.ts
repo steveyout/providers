@@ -95,6 +95,8 @@ export async function getShowMediaDetails(id: string, seasonNumber: string, epis
     season: {
       number: season.season_number,
       tmdbId: season.id,
+      title: season.name,
+      episodeCount: season.episodes.length,
     },
     imdbId: series.external_ids.imdb_id,
   };

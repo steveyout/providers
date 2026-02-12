@@ -56,6 +56,7 @@ export type EmbedOptions = {
   name: string; // displayed in the UI
   rank: number; // the higher the number, the earlier it gets put on the queue
   disabled?: boolean;
+  flags: Flags[];
   scrape: (input: EmbedScrapeContext) => Promise<EmbedOutput>;
 };
 

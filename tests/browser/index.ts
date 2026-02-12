@@ -5,4 +5,4 @@ import { makeProviders, makeStandardFetcher, targets } from '../../lib/index.js'
     fetcher: makeStandardFetcher(fetch),
     target: targets.ANY,
   });
-}
+};

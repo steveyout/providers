@@ -5,6 +5,7 @@ export const warezPlayerScraper = makeEmbed({
   name: 'warezPLAYER',
   disabled: true,
   rank: 85,
+  flags: [],
   async scrape(ctx) {
     // ex url: https://basseqwevewcewcewecwcw.xyz/video/0e4a2c65bdaddd66a53422d93daebe68
     const playerPageUrl = new URL(ctx.url);

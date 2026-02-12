@@ -37,6 +37,7 @@ function embed(provider: { id: string; rank: number; disabled?: boolean }) {
       .join(' '),
     disabled: provider.disabled,
     rank: provider.rank,
+    flags: [flags.CORS_ALLOWED],
     async scrape(ctx) {
       return {
         stream: [

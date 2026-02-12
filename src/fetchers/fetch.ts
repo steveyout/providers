@@ -19,6 +19,7 @@ export type FetchHeaders = {
 export type FetchReply = {
   text(): Promise<string>;
   json(): Promise<any>;
+  arrayBuffer(): Promise<ArrayBuffer>;
   extraHeaders?: FetchHeaders;
   extraUrl?: string;
   headers: FetchHeaders;

@@ -6,10 +6,8 @@ import { EmbedOutput, SourcererOutput } from '@/providers/base';
 import { ProviderList } from '@/providers/get';
 import { ScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
-import { addOpenSubtitlesCaptions } from '@/utils/opensubtitles';
 import { requiresProxy, setupProxy } from '@/utils/proxy';
 import { isValidStream, validatePlayableStreams } from '@/utils/valid';
-import { addWyzieCaptions } from '@/utils/wyziesubs';
 
 export type IndividualSourceRunnerOptions = {
   features: FeatureMap;
@@ -19,7 +17,6 @@ export type IndividualSourceRunnerOptions = {
   id: string;
   events?: IndividualScraperEvents;
   proxyStreams?: boolean; // temporary
-  disableOpensubtitles?: boolean;
 };
 
 export async function scrapeInvidualSource(
@@ -34,6 +31,7 @@ export async function scrapeInvidualSource(
   const contextBase: ScrapeContext = {
     fetcher: ops.fetcher,
     proxiedFetcher: ops.proxiedFetcher,
+    features: ops.features,
     progress(val) {
       ops.events?.update?.({
         id: sourceScraper.id,
@@ -75,15 +73,6 @@ export async function scrapeInvidualSource(
     return true;
   });
 
-  // opensubtitles
-  if (!ops.disableOpensubtitles)
-    for (const embed of output.embeds)
-      embed.url = `${embed.url}${btoa('MEDIA=')}${btoa(
-        `${ops.media.imdbId}${
-          ops.media.type === 'show' ? `.${ops.media.season.number}.${ops.media.episode.number}` : ''
-        }`,
-      )}`;
-
   if ((!output.stream || output.stream.length === 0) && output.embeds.length === 0)
     throw new NotFoundError('No streams found');
 
@@ -92,41 +81,6 @@ export async function scrapeInvidualSource(
     const playableStreams = await validatePlayableStreams(output.stream, ops, sourceScraper.id);
     if (playableStreams.length === 0) throw new NotFoundError('No playable streams found');
 
-    // opensubtitles
-    if (!ops.disableOpensubtitles) {
-      for (const playableStream of playableStreams) {
-        // Try Wyzie subs first
-        if (ops.media.imdbId) {
-          playableStream.captions = await addWyzieCaptions(
-            playableStream.captions,
-            ops.media.tmdbId,
-            ops.media.imdbId,
-            ops.media.type === 'show' ? ops.media.season.number : undefined,
-            ops.media.type === 'show' ? ops.media.episode.number : undefined,
-          );
-
-          // Fall back to OpenSubtitles if no Wyzie subs found
-          if (!playableStream.captions.some((caption) => caption.wyziesubs)) {
-            const [imdbId, season, episode] = atob(ops.media.imdbId)
-              .split('.')
-              .map((x, i) => (i === 0 ? x : Number(x) || null));
-            const mediaInfo = {
-              ...ops,
-              media: {
-                type: season && episode ? 'show' : 'movie',
-                imdbId: imdbId?.toString() || '',
-                ...(season && episode ? { season: { number: season }, episode: { number: episode } } : {}),
-              } as ScrapeMedia,
-            };
-            playableStream.captions = await addOpenSubtitlesCaptions(
-              playableStream.captions,
-              mediaInfo,
-              ops.media.imdbId,
-            );
-          }
-        }
-      }
-    }
     output.stream = playableStreams;
   }
   return output;
@@ -140,7 +94,6 @@ export type IndividualEmbedRunnerOptions = {
   id: string;
   events?: IndividualScraperEvents;
   proxyStreams?: boolean; // temporary
-  disableOpensubtitles?: boolean;
 };
 
 export async function scrapeIndividualEmbed(
@@ -150,13 +103,12 @@ export async function scrapeIndividualEmbed(
   const embedScraper = list.embeds.find((v) => ops.id === v.id);
   if (!embedScraper) throw new Error('Embed with ID not found');
 
-  let url = ops.url;
-  let media;
-  if (ops.url.includes(btoa('MEDIA='))) [url, media] = url.split(btoa('MEDIA='));
+  const url = ops.url;
 
   const output = await embedScraper.scrape({
     fetcher: ops.fetcher,
     proxiedFetcher: ops.proxiedFetcher,
+    features: ops.features,
     url,
     progress(val) {
       ops.events?.update?.({
@@ -178,22 +130,6 @@ export async function scrapeIndividualEmbed(
 
   const playableStreams = await validatePlayableStreams(output.stream, ops, embedScraper.id);
   if (playableStreams.length === 0) throw new NotFoundError('No playable streams found');
-
-  if (media && !ops.disableOpensubtitles) {
-    const [imdbId, season, episode] = atob(media)
-      .split('.')
-      .map((x, i) => (i === 0 ? x : Number(x) || null));
-    const mediaInfo = {
-      ...ops,
-      media: {
-        type: season && episode ? 'show' : 'movie',
-        imdbId: imdbId?.toString() || '',
-        ...(season && episode ? { season: { number: season }, episode: { number: episode } } : {}),
-      } as ScrapeMedia,
-    };
-    for (const playableStream of playableStreams)
-      playableStream.captions = await addOpenSubtitlesCaptions(playableStream.captions, mediaInfo, media);
-  }
 
   output.stream = playableStreams;
 

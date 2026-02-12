@@ -20,6 +20,7 @@ type StreamCommon = {
   thumbnailTrack?: ThumbnailTrack;
   headers?: Record<string, string>; // these headers HAVE to be set to watch the stream
   preferredHeaders?: Record<string, string>; // these headers are optional, would improve the stream
+  skipValidation?: boolean; // skip stream validation if true
 };
 
 export type FileBasedStream = StreamCommon & {

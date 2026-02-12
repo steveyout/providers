@@ -5,6 +5,7 @@ export const mp4uploadScraper = makeEmbed({
   id: 'mp4upload',
   name: 'mp4upload',
   rank: 170,
+  flags: [flags.CORS_ALLOWED],
   async scrape(ctx) {
     const embed = await ctx.proxiedFetcher<string>(ctx.url);
 

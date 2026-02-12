@@ -3,4 +3,5 @@ node_modules/
 coverage
 .env
 .eslintcache
-
+/lib-obf
+.DS_Store

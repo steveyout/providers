@@ -131,7 +131,7 @@ describe('makeStandardFetcher()', () => {
       output: {
         method: 'POST',
         headers: {},
-        signal: new AbortController().signal, 
+        signal: new AbortController().signal,
       },
       outputBody: 'hello world',
     });

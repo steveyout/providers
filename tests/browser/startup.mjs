@@ -7,6 +7,9 @@ const root = dirname(fileURLToPath(import.meta.url));
 
 await build({
   root,
+  build: {
+    sourcemap: false,
+  },
 });
 const server = await preview({
   root,

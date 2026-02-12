@@ -10,6 +10,7 @@ export const streamvidScraper = makeEmbed({
   id: 'streamvid',
   name: 'Streamvid',
   rank: 215,
+  flags: [flags.CORS_ALLOWED],
   async scrape(ctx) {
     // Example url: https://streamvid.net/fu1jaf96vofx
     const streamRes = await ctx.proxiedFetcher<string>(ctx.url);

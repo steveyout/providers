@@ -17,6 +17,8 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
   if (!apiRes.videoSource) throw new NotFoundError('No watchable item found');
 
   let processedUrl = apiRes.videoSource;
+  let streamHeaders: Record<string, string> = {};
+
   if (processedUrl.includes('orbitproxy')) {
     try {
       const urlParts = processedUrl.split(/orbitproxy\.[^/]+\//);
@@ -31,8 +33,8 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
           const originalUrl = jsonData.u;
           const referer = jsonData.r || '';
 
-          const headers = { referer };
-          processedUrl = createM3U8ProxyUrl(originalUrl, headers);
+          streamHeaders = { referer };
+          processedUrl = createM3U8ProxyUrl(originalUrl, ctx.features, streamHeaders);
         } catch (jsonError) {
           console.error('Error decoding/parsing orbitproxy data:', jsonError);
         }
@@ -54,6 +56,7 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
         captions: [],
         playlist: processedUrl,
         type: 'hls',
+        headers: streamHeaders,
         flags: [flags.CORS_ALLOWED],
       },
     ],

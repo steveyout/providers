@@ -24,6 +24,7 @@ export const warezcdnembedHlsScraper = makeEmbed({
   // method no longer works
   disabled: true,
   rank: 83,
+  flags: [flags.IP_LOCKED],
   async scrape(ctx) {
     const decryptedId = await getDecryptedId(ctx);
 

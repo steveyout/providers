@@ -1,9 +1,9 @@
 export default defineAppConfig({
   docus: {
-    title: '@movie-web/providers',
+    title: '@p-stream/providers',
     description: 'For all your media scraping needs',
     socials: {
-      github: 'movie-web/providers',
+      github: 'p-stream/providers',
     },
     image: '',
     aside: {

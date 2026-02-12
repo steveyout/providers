@@ -1,5 +1,3 @@
-import AbortController from 'abort-controller';
-
 import { serializeBody } from '@/fetchers/body';
 import { makeFullUrl } from '@/fetchers/common';
 import { FetchLike, FetchReply } from '@/fetchers/fetch';
@@ -43,9 +41,23 @@ export function makeStandardFetcher(f: FetchLike): Fetcher {
       clearTimeout(timeoutId);
 
       let body: any;
-      const isJson = res.headers.get('content-type')?.includes('application/json');
-      if (isJson) body = await res.json();
-      else body = await res.text();
+      const contentType = res.headers.get('content-type')?.toLowerCase();
+      const isJson = contentType?.includes('application/json');
+      const isBinary =
+        contentType?.includes('application/wasm') ||
+        contentType?.includes('application/octet-stream') ||
+        contentType?.includes('binary');
+
+      // Handle 204 No Content responses - they have no body
+      if (res.status === 204) {
+        body = null;
+      } else if (isJson) {
+        body = await res.json();
+      } else if (isBinary) {
+        body = await res.arrayBuffer();
+      } else {
+        body = await res.text();
+      }
 
       return {
         body,

@@ -18,6 +18,7 @@ function embed(provider: { id: string; rank: number }) {
     name: provider.id.charAt(0).toUpperCase() + provider.id.slice(1),
     rank: provider.rank,
     disabled: false,
+    flags: [],
     async scrape(ctx) {
       const [query, baseUrl] = ctx.url.split('|');
 

@@ -134,4 +134,25 @@ describe('flagsAllowedInFeatures()', () => {
       false,
     );
   });
+
+  it('should disallow MKV_REQUIRED for browser target (disallowed in features)', () => {
+    checkFeatures(
+      { requires: [flags.CORS_ALLOWED], disallowed: [flags.MKV_REQUIRED] },
+      [flags.CORS_ALLOWED, flags.MKV_REQUIRED],
+      false,
+    );
+    checkFeatures(
+      { requires: [flags.CORS_ALLOWED], disallowed: [flags.MKV_REQUIRED] },
+      [flags.CORS_ALLOWED],
+      true,
+    );
+  });
+
+  it('should allow MKV_REQUIRED for native target (no disallowed)', () => {
+    checkFeatures(
+      { requires: [], disallowed: [] },
+      [flags.MKV_REQUIRED],
+      true,
+    );
+  });
 });

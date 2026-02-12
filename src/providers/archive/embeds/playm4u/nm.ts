@@ -73,6 +73,7 @@ export const playm4uNMScraper = makeEmbed({
   id: 'playm4u-nm',
   name: 'PlayM4U',
   rank: 240,
+  flags: [],
   scrape: async (ctx) => {
     // ex: https://play9str.playm4u.xyz/play/648f159ba3115a6f00744a16
     const mainPage$ = load(await ctx.proxiedFetcher<string>(ctx.url));

@@ -8,6 +8,7 @@ export const wootlyScraper = makeEmbed({
   id: 'wootly',
   name: 'wootly',
   rank: 172,
+  flags: [],
   async scrape(ctx) {
     const baseUrl = 'https://www.wootly.ch';
 

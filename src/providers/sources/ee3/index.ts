@@ -1,76 +1,92 @@
-import { flags } from '@/entrypoint/utils/targets';
 import { SourcererOutput, makeSourcerer } from '@/providers/base';
-import { Caption } from '@/providers/captions';
-import { compareMedia } from '@/utils/compare';
 import { MovieScrapeContext } from '@/utils/context';
-import { makeCookieHeader } from '@/utils/cookie';
 import { NotFoundError } from '@/utils/errors';
 
-import { baseUrl, password, username } from './common';
-import { itemDetails, renewResponse } from './types';
-import { login, parseSearch } from './utils';
+import { apiBaseUrl, password, username } from './common';
 
-// this source only has movies
-async function comboScraper(ctx: MovieScrapeContext): Promise<SourcererOutput> {
-  const pass = await login(username, password, ctx);
-  if (!pass) throw new Error('Login failed');
-
-  const search = parseSearch(
-    await ctx.proxiedFetcher<string>('/get', {
-      baseUrl,
+async function fetchMovie(ctx: MovieScrapeContext, ee3Auth: string): Promise<string | null> {
+  // Authenticate and get token
+  const authResp = await ctx.proxiedFetcher.full<{ token?: string }>(
+    `${apiBaseUrl}/api/collections/users/auth-with-password?expand=lists_liked`,
+    {
       method: 'POST',
-      body: new URLSearchParams({ query: ctx.media.title, action: 'search' }),
       headers: {
-        cookie: makeCookieHeader({ PHPSESSID: pass }),
+        Origin: 'https://ee3.me',
+        'Content-Type': 'application/json',
       },
-    }),
+      body: JSON.stringify({
+        identity: username,
+        password: ee3Auth,
+      }),
+    },
   );
+  if (authResp.statusCode !== 200) {
+    throw new Error(`Auth failed with status: ${authResp.statusCode}: ${JSON.stringify(authResp.body)}`);
+  }
 
-  const id = search.find((v) => v && compareMedia(ctx.media, v.title, v.year))?.id;
-  if (!id) throw new NotFoundError('No watchable item found');
+  const jsonResponse = authResp.body;
+  if (!jsonResponse?.token) {
+    throw new Error(`No token in auth response: ${JSON.stringify(jsonResponse)}`);
+  }
+
+  const token = jsonResponse.token;
   ctx.progress(20);
 
-  const details: itemDetails = JSON.parse(
-    await ctx.proxiedFetcher<string>('/get', {
-      baseUrl,
-      method: 'POST',
-      body: new URLSearchParams({ id, action: 'get_movie_info' }),
-      headers: {
-        cookie: makeCookieHeader({ PHPSESSID: pass }),
-      },
-    }),
-  );
-  if (!details.message.video) throw new Error('Failed to get the stream');
+  // Find movie by TMDB ID
+  const movieUrl = `${apiBaseUrl}/api/collections/movies/records?page=1&perPage=48&filter=tmdb_data.id%20~%20${ctx.media.tmdbId}`;
+  const movieResp = await ctx.proxiedFetcher.full<{ items?: Array<{ video?: string }> }>(movieUrl, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Origin: 'https://ee3.me',
+    },
+  });
+
+  if (movieResp.statusCode !== 200) {
+    throw new Error(`Movie lookup failed with status: ${movieResp.statusCode}: ${JSON.stringify(movieResp.body)}`);
+  }
+
+  const movieJsonResponse = movieResp.body;
+  if (!movieJsonResponse?.items || movieJsonResponse.items.length === 0) {
+    throw new NotFoundError(`No items found for TMDB ID ${ctx.media.tmdbId}: ${JSON.stringify(movieJsonResponse)}`);
+  }
+
+  if (!movieJsonResponse.items[0].video) {
+    throw new NotFoundError(`No video field in first item: ${JSON.stringify(movieJsonResponse.items[0])}`);
+  }
+
+  const movieId = movieJsonResponse.items[0].video;
   ctx.progress(40);
 
-  const keyParams: renewResponse = JSON.parse(
-    await ctx.proxiedFetcher<string>('/renew', {
-      baseUrl,
-      method: 'POST',
-      headers: {
-        cookie: makeCookieHeader({ PHPSESSID: pass }),
-      },
-    }),
-  );
-  if (!keyParams.k) throw new Error('Failed to get the key');
-  ctx.progress(60);
+  // Get video key
+  const keyResp = await ctx.proxiedFetcher.full<{ key?: string }>(`${apiBaseUrl}/video/${movieId}/key`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Origin: 'https://ee3.me',
+    },
+  });
 
-  const server = details.message.server === '1' ? 'https://vid.ee3.me/vid/' : 'https://vault.rips.cc/video/';
-  const k = keyParams.k;
-  const url = `${server}${details.message.video}?${new URLSearchParams({ k })}`;
-  const captions: Caption[] = [];
-
-  // this how they actually deal with subtitles
-  if (details.message.subs?.toLowerCase() === 'yes' && details.message.imdbID) {
-    captions.push({
-      id: `https://rips.cc/subs/${details.message.imdbID}.vtt`,
-      url: `https://rips.cc/subs/${details.message.imdbID}.vtt`,
-      type: 'vtt',
-      hasCorsRestrictions: false,
-      language: 'en',
-    });
+  if (keyResp.statusCode !== 200) {
+    throw new Error(`Key fetch failed with status: ${keyResp.statusCode}: ${JSON.stringify(keyResp.body)}`);
   }
-  ctx.progress(90);
+
+  const keyJsonResponse = keyResp.body;
+  if (!keyJsonResponse?.key) {
+    throw new Error(`No key in response: ${JSON.stringify(keyJsonResponse)}`);
+  }
+
+  ctx.progress(60);
+  return `${movieId}?k=${keyJsonResponse.key}`;
+}
+
+async function comboScraper(ctx: MovieScrapeContext): Promise<SourcererOutput> {
+  const movData = await fetchMovie(ctx, password);
+  if (!movData) {
+    throw new NotFoundError('No watchable item found');
+  }
+
+  ctx.progress(80);
+
+  const videoUrl = `${apiBaseUrl}/video/${movData}`;
 
   return {
     embeds: [],
@@ -78,15 +94,17 @@ async function comboScraper(ctx: MovieScrapeContext): Promise<SourcererOutput> {
       {
         id: 'primary',
         type: 'file',
-        flags: [flags.CORS_ALLOWED],
-        captions,
         qualities: {
-          // should be unknown, but all the videos are 720p
-          720: {
+          unknown: {
             type: 'mp4',
-            url,
+            url: videoUrl,
           },
         },
+        headers: {
+          Origin: 'https://ee3.me',
+        },
+        flags: [],
+        captions: [],
       },
     ],
   };
@@ -95,8 +113,8 @@ async function comboScraper(ctx: MovieScrapeContext): Promise<SourcererOutput> {
 export const ee3Scraper = makeSourcerer({
   id: 'ee3',
   name: 'EE3',
-  rank: 120,
-  disabled: true,
-  flags: [flags.CORS_ALLOWED],
+  rank: 188,
+  disabled: false,
+  flags: [],
   scrapeMovie: comboScraper,
 });

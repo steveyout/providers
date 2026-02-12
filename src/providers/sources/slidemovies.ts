@@ -2,6 +2,7 @@ import { load } from 'cheerio';
 
 import { flags } from '@/entrypoint/utils/targets';
 import { SourcererOutput, makeSourcerer } from '@/providers/base';
+import { labelToLanguageCode } from '@/providers/captions';
 import { MovieScrapeContext, ShowScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
 
@@ -27,17 +28,11 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
   const encodedUrl = proxyUrl.searchParams.get('url') || '';
   const playlist = decodeURIComponent(encodedUrl);
 
-  const isoLanguageMap: Record<string, string> = {
-    ng: 'en',
-    re: 'fr',
-    pa: 'es',
-  };
-
   const captions = $('media-provider track')
     .map((_, el) => {
       const url = $(el).attr('src') || '';
       const rawLang = $(el).attr('lang') || 'unknown';
-      const languageCode = isoLanguageMap[rawLang] || rawLang;
+      const languageCode = labelToLanguageCode(rawLang) || rawLang;
       const isVtt = url.endsWith('.vtt') ? 'vtt' : 'srt';
 
       return {

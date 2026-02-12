@@ -19,3 +19,8 @@ export function parseSetCookie(headerValue: string): Record<string, Cookie> {
   });
   return parsedCookies;
 }
+
+export function getSetCookieHeader(headers: Headers): string {
+  // Try Set-Cookie first, then x-set-cookie (for proxy scenarios)
+  return headers.get('Set-Cookie') ?? headers.get('x-set-cookie') ?? '';
+}

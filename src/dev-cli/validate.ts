@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import nodeFetch from 'node-fetch';
 
 import { Embed, Sourcerer } from '@/providers/base';
@@ -74,6 +76,11 @@ export async function processOptions(sources: Array<Embed | Sourcerer>, options:
 
   if (options.fetcher === 'native') {
     fetcher = makeStandardFetcher(fetch);
+  } else if (process.env.HTTPS_PROXY) {
+    fetcher = makeStandardFetcher(async (url, ops) => {
+      const proxyAgent = new HttpsProxyAgent(process.env.HTTPS_PROXY!);
+      return nodeFetch(url, { ...ops, agent: proxyAgent });
+    });
   } else {
     fetcher = makeStandardFetcher(nodeFetch);
   }

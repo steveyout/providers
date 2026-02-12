@@ -7,6 +7,7 @@ export const vidCloudScraper = makeEmbed({
   name: 'VidCloud',
   rank: 201,
   disabled: true,
+  flags: [],
   async scrape(ctx) {
     // Both vidcloud and upcloud have the same embed domain (rabbitstream.net)
     const result = await upcloudScraper.scrape(ctx);

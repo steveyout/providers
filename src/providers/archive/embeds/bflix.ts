@@ -10,6 +10,7 @@ export const bflixScraper = makeEmbed({
   name: 'bFlix',
   disabled: true,
   rank: 113,
+  flags: [],
   scrape: async (ctx) => {
     const mainPage = await ctx.proxiedFetcher<string>(ctx.url);
 

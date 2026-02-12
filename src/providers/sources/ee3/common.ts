@@ -1,7 +1,5 @@
-export const useAltEndpoint: boolean = false;
+export const apiBaseUrl = 'https://borg.rips.cc';
 
-export const baseUrl = useAltEndpoint ? 'https://rips.cc' : 'https://ee3.me';
-
-export const username = '_sf_';
+export const username = '_sf_'; // I'd appreciate if you made your own account "_sf_" seems to be removed. Invite codes are: fmhy or mpgh
 
 export const password = 'defonotscraping';

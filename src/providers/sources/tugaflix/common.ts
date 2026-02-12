@@ -1,6 +1,6 @@
 import { load } from 'cheerio';
 
-export const baseUrl = 'https://tugaflix.best/';
+export const baseUrl = 'https://tugaflix.love/';
 
 export function parseSearch(page: string): { title: string; year?: number; url: string }[] {
   const results: { title: string; year?: number; url: string }[] = [];

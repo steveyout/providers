@@ -1,1 +1,1 @@
-Please visit the [main document at primary repository](https://github.com/movie-web/movie-web/blob/dev/.github/CONTRIBUTING.md).
+Please visit the [main document at primary repository](https://github.com/p-stream/p-stream/blob/dev/.github/CONTRIBUTING.md).

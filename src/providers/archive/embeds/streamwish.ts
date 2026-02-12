@@ -10,6 +10,7 @@ export const streamwishScraper = makeEmbed({
   id: 'streamwish',
   name: 'Streamwish',
   rank: 216,
+  flags: [flags.CORS_ALLOWED],
   async scrape(ctx) {
     const streamRes = await ctx.proxiedFetcher<string>(ctx.url);
     const packed = streamRes.match(packedRegex);
