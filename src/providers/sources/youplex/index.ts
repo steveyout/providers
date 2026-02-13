@@ -81,7 +81,7 @@ const generatedSources = scrapers.map((id, index) => {
     id: `yp_${id}`, // Unique ID: yp_vidlink, yp_sflix, etc.
     name: getRandomName(), // Each gets a cool unique name like "NebulaStream"
     rank: 150 - index, // Sets priority based on the order in your list
-    flags: [flags.PROXY_BLOCKED],
+    flags: [flags.CORS_ALLOWED, flags.IP_LOCKED],
     disabled: false,
     scrapeMovie: (ctx) => youPlexBridge(ctx, id),
     scrapeShow: (ctx) => youPlexBridge(ctx, id),
