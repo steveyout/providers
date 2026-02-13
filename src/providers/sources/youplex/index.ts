@@ -56,7 +56,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
           id: 'primary',
           type: 'hls',
           playlist: res.url,
-          flags: [flags.CORS_ALLOWED],
+          flags: [flags.CORS_ALLOWED, flags.IP_LOCKED],
           captions: (res.subtitles || []).map((s: any) => ({
             id: s.url,
             language: s.label || s.language || 'English',
@@ -81,7 +81,7 @@ const generatedSources = scrapers.map((id, index) => {
     id: `yp_${id}`, // Unique ID: yp_vidlink, yp_sflix, etc.
     name: getRandomName(), // Each gets a cool unique name like "NebulaStream"
     rank: 150 - index, // Sets priority based on the order in your list
-    flags: [flags.CORS_ALLOWED, flags.IP_LOCKED],
+    flags: [flags.CORS_ALLOWED],
     disabled: false,
     scrapeMovie: (ctx) => youPlexBridge(ctx, id),
     scrapeShow: (ctx) => youPlexBridge(ctx, id),
