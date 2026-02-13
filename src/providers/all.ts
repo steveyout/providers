@@ -105,7 +105,6 @@ import { warezcdnScraper } from './sources/warezcdn';
 import { wecimaScraper } from './sources/wecima';
 import { zunimeScraper } from './sources/zunime';
 
-
 export function gatherAllSources(): Array<Sourcerer> {
   // all sources are gathered here
   return [
