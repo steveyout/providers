@@ -15,6 +15,15 @@ import { mp4hydraScraper } from '@/providers/sources/mp4hydra';
 import { pirxcyScraper } from '@/providers/sources/pirxcy';
 import { tugaflixScraper } from '@/providers/sources/tugaflix';
 import { vidsrcvipScraper } from '@/providers/sources/vidsrcvip';
+import {
+  YouPlexFlixHQ,
+  YouPlexSFlix,
+  YouPlexVidEasy,
+  YouPlexVidFast,
+  YouPlexVidLink,
+  YouPlexVidNest,
+  YouPlexVidSrc,
+} from '@/providers/sources/youplex';
 import { zoechipScraper } from '@/providers/sources/zoechip';
 
 import { AnimetsuEmbeds } from './embeds/animetsu';
@@ -96,9 +105,17 @@ import { warezcdnScraper } from './sources/warezcdn';
 import { wecimaScraper } from './sources/wecima';
 import { zunimeScraper } from './sources/zunime';
 
+
 export function gatherAllSources(): Array<Sourcerer> {
   // all sources are gathered here
   return [
+    YouPlexVidLink,
+    YouPlexVidEasy,
+    YouPlexVidFast,
+    YouPlexVidNest,
+    YouPlexVidSrc,
+    YouPlexFlixHQ,
+    YouPlexSFlix,
     fsOnlineScraper,
     dopeboxScraper,
     cuevana3Scraper,
