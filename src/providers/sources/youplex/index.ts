@@ -67,7 +67,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
       ],
     };
   } catch (e) {
-    throw new NotFoundError(`VPS Bridge failed for ${scraperId}`);
+    throw new NotFoundError(`Bridge failed for ${scraperId}`);
   }
 }
 
@@ -78,7 +78,7 @@ const scrapers = ['vidlink', 'videasy', 'vidfast', 'vidnest', 'vidsrc', 'flixhq'
 // We map through the scrapers and create individual Sourcerer objects
 const generatedSources = scrapers.map((id, index) => {
   return makeSourcerer({
-    id: `yp_${id}`, // Unique ID: yp_vidlink, yp_sflix, etc.
+    id: `yp-${id}`, // Unique ID: yp_vidlink, yp_sflix, etc.
     name: getRandomName(), // Each gets a cool unique name like "NebulaStream"
     rank: 150 - index, // Sets priority based on the order in your list
     flags: [flags.CORS_ALLOWED],
