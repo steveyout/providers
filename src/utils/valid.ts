@@ -29,13 +29,6 @@ const SKIP_VALIDATION_CHECK_IDS = [
 const UNPROXIED_VALIDATION_CHECK_IDS = [
   // sources here are always proxied, so we dont need to validate with a proxy
   bombtheirishScraper.id, // this one is dead, but i'll keep it here for now
-  YouPlexFlixHQ.id,
-  YouPlexSFlix.id,
-  YouPlexVidEasy.id,
-  YouPlexVidFast.id,
-  YouPlexVidLink.id,
-  YouPlexVidNest.id,
-  YouPlexVidSrc.id,
 ];
 
 export function isValidStream(stream: Stream | undefined): boolean {
