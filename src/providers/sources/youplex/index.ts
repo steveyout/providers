@@ -2,7 +2,6 @@ import { flags } from '@/entrypoint/utils/targets';
 import { SourcererOutput, makeSourcerer } from '@/providers/base';
 import { MovieScrapeContext, ShowScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
-import { createM3U8ProxyUrl } from '@/utils/proxy';
 
 // 1. Stealth Name Pool - Randomized every time the app loads
 const stealthNames = [
@@ -56,7 +55,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
         {
           id: 'primary',
           type: 'hls',
-          playlist: createM3U8ProxyUrl(res.url, ctx.features, res.headers),
+          playlist: await ctx.proxiedFetcher(res.url),
           headers: res.headers,
           flags: [flags.CORS_ALLOWED],
           captions: (res.subtitles || []).map((s: any) => ({
