@@ -29,7 +29,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
 
   const query: any = {
     id: ctx.media.tmdbId,
-    type: ctx.media.type,
+    type: ctx.media.type === 'show' ? 'tv' : 'movie',
     provider: scraperId, // Passes 'vidlink', 'vidsrc', etc. to your VPS
   };
 
