@@ -42,7 +42,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
   ctx.progress(25);
 
   try {
-    const res = await ctx.proxiedFetcher(`${domain}/scrape`, { query });
+    const res = await ctx.fetcher(`${domain}/scrape`, { query });
 
     if (!res || !res.success || !res.url) {
       throw new NotFoundError(`Provider ${scraperId} could not find this content.`);
@@ -56,7 +56,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
         {
           id: 'primary',
           type: 'hls',
-          playlist: res.url,
+          playlist: createM3U8ProxyUrl(res.url, ctx.features, res.headers),
           flags: [flags.CORS_ALLOWED],
           captions: (res.subtitles || []).map((s: any) => ({
             id: s.url,
