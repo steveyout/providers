@@ -57,6 +57,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
           id: 'primary',
           type: 'hls',
           playlist: createM3U8ProxyUrl(res.url, ctx.features, res.headers),
+          headers: res.headers,
           flags: [flags.CORS_ALLOWED],
           captions: (res.subtitles || []).map((s: any) => ({
             id: s.url,
