@@ -15,7 +15,7 @@ testSource({
   source: YouPlexVidLink,
   testSuite: [
     testMedia.arcane, // Tests TV Show logic (s=1&e=1)
-    //testMedia.hamilton, // Tests Movie logic
+    testMedia.hamilton, // Tests Movie logic
   ],
   types: ['standard'],
   expect: {
