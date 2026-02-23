@@ -55,8 +55,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
         {
           id: 'primary',
           type: 'hls',
-          playlist: await ctx.proxiedFetcher(res.url),
-          headers: res.headers,
+          playlist: res.url,
           flags: [flags.CORS_ALLOWED],
           captions: (res.subtitles || []).map((s: any) => ({
             id: s.url,
