@@ -3,15 +3,6 @@
 import { bombtheirishScraper } from '@/providers/archive/sources/bombtheirish';
 import { streamtapeScraper } from '@/providers/embeds/streamtape';
 import { warezcdnembedMp4Scraper } from '@/providers/embeds/warezcdn/mp4';
-import {
-  YouPlexFlixHQ,
-  YouPlexSFlix,
-  YouPlexVidEasy,
-  YouPlexVidFast,
-  YouPlexVidLink,
-  YouPlexVidNest,
-  YouPlexVidSrc,
-} from '@/providers/sources/youplex';
 import { Stream } from '@/providers/streams';
 import { IndividualEmbedRunnerOptions } from '@/runners/individualRunner';
 import { ProviderRunnerOptions } from '@/runners/runner';

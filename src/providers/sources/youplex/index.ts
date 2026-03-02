@@ -3,23 +3,19 @@ import { SourcererOutput, makeSourcerer } from '@/providers/base';
 import { MovieScrapeContext, ShowScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
 
-// 1. Stealth Name Pool - Randomized every time the app loads
+// 1. Stealth Name Pool
 const stealthNames = [
-  'NebulaStream',
-  'NovaLink',
-  'QuantumPlayer',
-  'SolarisSource',
-  'AetherFlux',
-  'VortexVideo',
-  'ZenithMedia',
-  'PhantomStream',
-  'ArcaneLinks',
-  'ApexCinema',
-  'HorizonPlay',
-  'MidnightSource',
+  'NebulaStream', 'NovaLink', 'QuantumPlayer', 'SolarisSource',
+  'AetherFlux', 'VortexVideo', 'ZenithMedia', 'PhantomStream',
+  'ArcaneLinks', 'ApexCinema', 'HorizonPlay', 'MidnightSource',
 ];
 
-const getRandomName = () => stealthNames[Math.floor(Math.random() * stealthNames.length)];
+// Helper to get a random name and remove it from the pool to avoid duplicates
+const namePool = [...stealthNames];
+const getRandomName = () => {
+  const index = Math.floor(Math.random() * namePool.length);
+  return namePool.splice(index, 1)[0] || `Provider_${Math.random().toString(36).substr(2, 5)}`;
+};
 
 /**
  * Universal Bridge Logic
@@ -30,7 +26,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
   const query: any = {
     id: ctx.media.tmdbId,
     type: ctx.media.type === 'show' ? 'tv' : 'movie',
-    provider: scraperId, // Passes 'vidlink', 'vidsrc', etc. to your VPS
+    provider: scraperId,
   };
 
   if (ctx.media.type === 'show') {
@@ -71,16 +67,20 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
   }
 }
 
-// 2. The Scraper List - Add/Remove here to update the whole library
-const scrapers = ['vidlink', 'videasy', 'vidfast', 'vidnest', 'vidsrc', 'flixhq', 'sflix'];
+// 2. The Scraper List
+const scrapers = ['flixhq', 'moviebox'];
 
-// 3. Dynamic Export Generation
-// We map through the scrapers and create individual Sourcerer objects
-const generatedSources = scrapers.map((id, index) => {
-  return makeSourcerer({
-    id: `yp-${id}`, // Unique ID: yp_vidlink, yp_sflix, etc.
-    name: getRandomName(), // Each gets a cool unique name like "NebulaStream"
-    rank: 150 - index, // Sets priority based on the order in your list
+// 3. Dynamic Object Generation
+// This creates an object like { "NebulaStream": providerObject }
+export const GeneratedSources: Record<string, any> = {};
+
+scrapers.forEach((id, index) => {
+  const sName = getRandomName();
+
+  GeneratedSources[sName] = makeSourcerer({
+    id: `yp-${id}`,
+    name: sName, // Use the same stealth name here
+    rank: 150 - index,
     flags: [flags.CORS_ALLOWED],
     disabled: false,
     scrapeMovie: (ctx) => youPlexBridge(ctx, id),
@@ -88,13 +88,8 @@ const generatedSources = scrapers.map((id, index) => {
   });
 });
 
-// Destructuring for specific exports
-export const [
-  YouPlexVidLink,
-  YouPlexVidEasy,
-  YouPlexVidFast,
-  YouPlexVidNest,
-  YouPlexVidSrc,
-  YouPlexFlixHQ,
-  YouPlexSFlix,
-] = generatedSources;
+/**
+ * If you still need specific named exports for your registration logic,
+ * you can extract them from the object values:
+ */
+export const [YouPlexFlixHQ, YouPlexMovieBox] = Object.values(GeneratedSources);
