@@ -5,16 +5,29 @@ import { NotFoundError } from '@/utils/errors';
 
 // 1. Stealth Name Pool
 const stealthNames = [
-  'NebulaStream', 'NovaLink', 'QuantumPlayer', 'SolarisSource',
-  'AetherFlux', 'VortexVideo', 'ZenithMedia', 'PhantomStream',
-  'ArcaneLinks', 'ApexCinema', 'HorizonPlay', 'MidnightSource',
+  'NebulaStream',
+  'NovaLink',
+  'QuantumPlayer',
+  'SolarisSource',
+  'AetherFlux',
+  'VortexVideo',
+  'ZenithMedia',
+  'PhantomStream',
+  'ArcaneLinks',
+  'ApexCinema',
+  'HorizonPlay',
+  'MidnightSource',
 ];
 
-// Helper to get a random name and remove it from the pool to avoid duplicates
+// Local pool to prevent duplicates during a single session
 const namePool = [...stealthNames];
-const getRandomName = () => {
+
+const getStealthName = (id: string) => {
   const index = Math.floor(Math.random() * namePool.length);
-  return namePool.splice(index, 1)[0] || `Provider_${Math.random().toString(36).substr(2, 5)}`;
+  const name = namePool.splice(index, 1)[0] || `Source_${Math.random().toString(36).substr(2, 5)}`;
+
+  // 🔥 Add the 'Hot' emoji specifically if the provider is 'moviebox'
+  return id === 'moviebox' ? `🔥 ${name}` : name;
 };
 
 /**
@@ -71,15 +84,15 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
 const scrapers = ['flixhq', 'moviebox'];
 
 // 3. Dynamic Object Generation
-// This creates an object like { "NebulaStream": providerObject }
+// Structure: { "🔥 StealthName": providerObject }
 export const GeneratedSources: Record<string, any> = {};
 
 scrapers.forEach((id, index) => {
-  const sName = getRandomName();
+  const sName = getStealthName(id);
 
   GeneratedSources[sName] = makeSourcerer({
     id: `yp-${id}`,
-    name: sName, // Use the same stealth name here
+    name: sName,
     rank: 150 - index,
     flags: [flags.CORS_ALLOWED],
     disabled: false,
@@ -88,8 +101,5 @@ scrapers.forEach((id, index) => {
   });
 });
 
-/**
- * If you still need specific named exports for your registration logic,
- * you can extract them from the object values:
- */
+// Specific exports for manual registration if needed
 export const [YouPlexFlixHQ, YouPlexMovieBox] = Object.values(GeneratedSources);
