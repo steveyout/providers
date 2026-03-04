@@ -65,7 +65,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
           id: 'primary',
           type: 'hls',
           playlist: res.url,
-          flags: [],
+          flags: [flags.CORS_ALLOWED],
           captions: (res.subtitles || []).map((s: any) => ({
             id: s.url,
             language: s.label || s.language || 'English',
