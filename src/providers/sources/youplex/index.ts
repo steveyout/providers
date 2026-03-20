@@ -81,7 +81,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
 }
 
 // 2. The Scraper List
-const scrapers = ['flixhq', 'moviebox'];
+const scrapers = ['flixhq', 'moviebox','flixhq', 'moviebox'];
 
 // 3. Dynamic Object Generation
 // Structure: { "🔥 StealthName": providerObject }
