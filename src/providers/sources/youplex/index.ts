@@ -39,7 +39,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
 
   try {
     const res = await ctx.fetcher(`${domain}/scrape`, { query });
-    if (!res || !res.success || !res.url) throw new NotFoundError(`Failed`);
+    if (!res || !res.success || !res.url) throw new NotFoundError(`No results`);
     ctx.progress(95);
 
     return {
@@ -60,41 +60,55 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
       ],
     };
   } catch (e) {
-    throw new NotFoundError(`Bridge failed`);
+    throw new NotFoundError(`Bridge error`);
   }
 }
 
-// 2. The Generation Logic
-const scrapers = ['flixhq', 'moviebox'];
-const GeneratedSources: Record<string, any> = {};
+// 2. The Scraper Definitions
+const scrapers = [
+  { id: 'moviebox', emoji: '🔥 ', baseRank: 180 },
+  { id: 'flixhq', emoji: '', baseRank: 160 },
+];
 
-// Create a fresh pool for this execution
+const finalSources: any[] = [];
 const currentPool = [...stealthNames];
 
-scrapers.forEach((id, index) => {
-  // Loop twice to create a Primary and a Backup for each
-  [1, 2].forEach((version) => {
-    // Get a random name from the pool
-    const nameIndex = Math.floor(Math.random() * currentPool.length);
-    const rawName = currentPool.splice(nameIndex, 1)[0] || `Source-${Math.random().toString(36).substr(2, 5)}`;
+// Helper to get a truly unique name
+const pullName = () => {
+  const idx = Math.floor(Math.random() * currentPool.length);
+  return currentPool.splice(idx, 1)[0] || `Stream-${Math.random().toString(36).substr(2, 4)}`;
+};
 
-    // 🔥 Apply styling: MovieBox gets the emoji
-    const finalName = id === 'moviebox' ? `🔥 ${rawName}` : rawName;
-    const uniqueId = `yp-${id}-v${version}`;
-
-    GeneratedSources[uniqueId] = makeSourcerer({
-      id: uniqueId,
-      name: finalName,
-      // High rank for MovieBox (index 1), slightly lower for FlixHQ (index 0)
-      // v1 gets a higher rank than v2
-      rank: 160 - index * 10 - version,
+// 3. Explicit Generation
+scrapers.forEach((config) => {
+  // Version 1 (Primary)
+  const name1 = pullName();
+  finalSources.push(
+    makeSourcerer({
+      id: `yp-${config.id}-1`, // Unique ID: yp-moviebox-1
+      name: `${config.emoji}${name1}`,
+      rank: config.baseRank,
       flags: [flags.CORS_ALLOWED],
       disabled: false,
-      scrapeMovie: (ctx) => youPlexBridge(ctx, id),
-      scrapeShow: (ctx) => youPlexBridge(ctx, id),
-    });
-  });
+      scrapeMovie: (ctx) => youPlexBridge(ctx, config.id),
+      scrapeShow: (ctx) => youPlexBridge(ctx, config.id),
+    }),
+  );
+
+  // Version 2 (Backup)
+  const name2 = pullName();
+  finalSources.push(
+    makeSourcerer({
+      id: `yp-${config.id}-2`, // Unique ID: yp-moviebox-2
+      name: `${config.emoji}${name2}`,
+      rank: config.baseRank - 1, // Slightly lower rank for the backup
+      flags: [flags.CORS_ALLOWED],
+      disabled: false,
+      scrapeMovie: (ctx) => youPlexBridge(ctx, config.id),
+      scrapeShow: (ctx) => youPlexBridge(ctx, config.id),
+    }),
+  );
 });
 
-// Export the array for your all.ts file
-export const youPlexSources = Object.values(GeneratedSources);
+// ✨ This array will now contain 4 items: [MB-1, MB-2, FH-1, FH-2]
+export const youPlexSources = finalSources;
