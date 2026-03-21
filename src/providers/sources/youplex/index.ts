@@ -67,7 +67,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
 // 2. The Scraper Definitions
 const scrapers = [
   { id: 'moviebox', emoji: '🔥 ', baseRank: 180 },
-  { id: 'flixhq', emoji: '', baseRank: 170 },
+  { id: 'flixhq', emoji: '', baseRank: 173 },
 ];
 
 const finalSources: any[] = [];
