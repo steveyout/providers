@@ -3,13 +3,18 @@
 import { bombtheirishScraper } from '@/providers/archive/sources/bombtheirish';
 import { streamtapeScraper } from '@/providers/embeds/streamtape';
 import { warezcdnembedMp4Scraper } from '@/providers/embeds/warezcdn/mp4';
+import { youPlexSources } from '@/providers/sources/youplex';
 import { Stream } from '@/providers/streams';
 import { IndividualEmbedRunnerOptions } from '@/runners/individualRunner';
 import { ProviderRunnerOptions } from '@/runners/runner';
 
+// 1. Get an array of just the IDs: ['yp-moviebox-1', 'yp-moviebox-2', ...]
+const youPlexIds = youPlexSources.map((s) => s.id);
+
 const SKIP_VALIDATION_CHECK_IDS = [
   warezcdnembedMp4Scraper.id,
   streamtapeScraper.id,
+  ...youPlexIds,
   // deltaScraper.id,
   // alphaScraper.id,
   // novaScraper.id,
