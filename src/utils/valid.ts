@@ -14,6 +14,7 @@ const youPlexIds = youPlexSources.map((s) => s.id);
 const SKIP_VALIDATION_CHECK_IDS = [
   warezcdnembedMp4Scraper.id,
   streamtapeScraper.id,
+  ...youPlexIds,
   // deltaScraper.id,
   // alphaScraper.id,
   // novaScraper.id,
