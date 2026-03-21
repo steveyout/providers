@@ -3,7 +3,6 @@
 import { bombtheirishScraper } from '@/providers/archive/sources/bombtheirish';
 import { streamtapeScraper } from '@/providers/embeds/streamtape';
 import { warezcdnembedMp4Scraper } from '@/providers/embeds/warezcdn/mp4';
-import { YouPlexFlixHQ, YouPlexMovieBox } from '@/providers/sources/youplex';
 import { Stream } from '@/providers/streams';
 import { IndividualEmbedRunnerOptions } from '@/runners/individualRunner';
 import { ProviderRunnerOptions } from '@/runners/runner';
@@ -11,8 +10,6 @@ import { ProviderRunnerOptions } from '@/runners/runner';
 const SKIP_VALIDATION_CHECK_IDS = [
   warezcdnembedMp4Scraper.id,
   streamtapeScraper.id,
-  YouPlexFlixHQ.id,
-  YouPlexMovieBox.id,
   // deltaScraper.id,
   // alphaScraper.id,
   // novaScraper.id,

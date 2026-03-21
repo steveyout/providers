@@ -92,5 +92,5 @@ scrapers.forEach((id, index) => {
   });
 });
 
-// Specific exports for manual registration if needed
-export const [YouPlexFlixHQ, YouPlexMovieBox] = Object.values(GeneratedSources);
+// Since we duplicated, we export the whole object values for registration
+export const youPlexSources = Object.values(GeneratedSources);
