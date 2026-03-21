@@ -3,7 +3,6 @@ import { SourcererOutput, makeSourcerer } from '@/providers/base';
 import { MovieScrapeContext, ShowScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
 
-// 1. Stealth Name Pool
 const stealthNames = [
   'NebulaStream',
   'NovaLink',
@@ -19,23 +18,16 @@ const stealthNames = [
   'MidnightSource',
 ];
 
-// Local pool to prevent duplicates during a single session
 const namePool = [...stealthNames];
 
 const getStealthName = (id: string) => {
   const index = Math.floor(Math.random() * namePool.length);
   const name = namePool.splice(index, 1)[0] || `Source_${Math.random().toString(36).substr(2, 5)}`;
-
-  // 🔥 Add the 'Hot' emoji specifically if the provider is 'moviebox'
   return id === 'moviebox' ? `🔥 ${name}` : name;
 };
 
-/**
- * Universal Bridge Logic
- */
 async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scraperId: string): Promise<SourcererOutput> {
   const domain = 'https://api.youplex.site';
-
   const query: any = {
     id: ctx.media.tmdbId,
     type: ctx.media.type === 'show' ? 'tv' : 'movie',
@@ -51,11 +43,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
 
   try {
     const res = await ctx.fetcher(`${domain}/scrape`, { query });
-
-    if (!res || !res.success || !res.url) {
-      throw new NotFoundError(`Provider ${scraperId} could not find this content.`);
-    }
-
+    if (!res || !res.success || !res.url) throw new NotFoundError(`Failed`);
     ctx.progress(95);
 
     return {
@@ -76,28 +64,31 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
       ],
     };
   } catch (e) {
-    throw new NotFoundError(`Bridge failed for ${scraperId}`);
+    throw new NotFoundError(`Bridge failed`);
   }
 }
 
-// 2. The Scraper List
-const scrapers = ['flixhq', 'moviebox','flixhq', 'moviebox'];
+const scrapers = ['flixhq', 'moviebox'];
 
-// 3. Dynamic Object Generation
-// Structure: { "🔥 StealthName": providerObject }
+// 3. Duplicate Generation (2x per scraper)
 export const GeneratedSources: Record<string, any> = {};
 
 scrapers.forEach((id, index) => {
-  const sName = getStealthName(id);
+  // We loop twice for each scraper ID
+  [1, 2].forEach((version) => {
+    const sName = getStealthName(id);
+    const uniqueId = `yp-${id}-v${version}`; // e.g., yp-moviebox-v1, yp-moviebox-v2
 
-  GeneratedSources[sName] = makeSourcerer({
-    id: `yp-${id}`,
-    name: sName,
-    rank: 150 - index,
-    flags: [flags.CORS_ALLOWED],
-    disabled: false,
-    scrapeMovie: (ctx) => youPlexBridge(ctx, id),
-    scrapeShow: (ctx) => youPlexBridge(ctx, id),
+    GeneratedSources[sName] = makeSourcerer({
+      id: uniqueId,
+      name: sName,
+      // Rank v1 higher than v2 so they appear in order
+      rank: 150 - index * 10 - version,
+      flags: [flags.CORS_ALLOWED],
+      disabled: false,
+      scrapeMovie: (ctx) => youPlexBridge(ctx, id),
+      scrapeShow: (ctx) => youPlexBridge(ctx, id),
+    });
   });
 });
 
