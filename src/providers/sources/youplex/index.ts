@@ -3,6 +3,7 @@ import { SourcererOutput, makeSourcerer } from '@/providers/base';
 import { MovieScrapeContext, ShowScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
 
+// 1. Stealth Name Pool
 const stealthNames = [
   'NebulaStream',
   'NovaLink',
@@ -18,14 +19,9 @@ const stealthNames = [
   'MidnightSource',
 ];
 
-const namePool = [...stealthNames];
-
-const getStealthName = (id: string) => {
-  const index = Math.floor(Math.random() * namePool.length);
-  const name = namePool.splice(index, 1)[0] || `Source_${Math.random().toString(36).substr(2, 5)}`;
-  return id === 'moviebox' ? `🔥 ${name}` : name;
-};
-
+/**
+ * Universal Bridge Logic
+ */
 async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scraperId: string): Promise<SourcererOutput> {
   const domain = 'https://api.youplex.site';
   const query: any = {
@@ -68,22 +64,30 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
   }
 }
 
+// 2. The Generation Logic
 const scrapers = ['flixhq', 'moviebox'];
+const GeneratedSources: Record<string, any> = {};
 
-// 3. Duplicate Generation (2x per scraper)
-export const GeneratedSources: Record<string, any> = {};
+// Create a fresh pool for this execution
+const currentPool = [...stealthNames];
 
 scrapers.forEach((id, index) => {
-  // We loop twice for each scraper ID
+  // Loop twice to create a Primary and a Backup for each
   [1, 2].forEach((version) => {
-    const sName = getStealthName(id);
-    const uniqueId = `yp-${id}-v${version}`; // e.g., yp-moviebox-v1, yp-moviebox-v2
+    // Get a random name from the pool
+    const nameIndex = Math.floor(Math.random() * currentPool.length);
+    const rawName = currentPool.splice(nameIndex, 1)[0] || `Source-${Math.random().toString(36).substr(2, 5)}`;
 
-    GeneratedSources[sName] = makeSourcerer({
+    // 🔥 Apply styling: MovieBox gets the emoji
+    const finalName = id === 'moviebox' ? `🔥 ${rawName}` : rawName;
+    const uniqueId = `yp-${id}-v${version}`;
+
+    GeneratedSources[uniqueId] = makeSourcerer({
       id: uniqueId,
-      name: sName,
-      // Rank v1 higher than v2 so they appear in order
-      rank: 150 - index * 10 - version,
+      name: finalName,
+      // High rank for MovieBox (index 1), slightly lower for FlixHQ (index 0)
+      // v1 gets a higher rank than v2
+      rank: 160 - index * 10 - version,
       flags: [flags.CORS_ALLOWED],
       disabled: false,
       scrapeMovie: (ctx) => youPlexBridge(ctx, id),
@@ -92,5 +96,5 @@ scrapers.forEach((id, index) => {
   });
 });
 
-// Since we duplicated, we export the whole object values for registration
+// Export the array for your all.ts file
 export const youPlexSources = Object.values(GeneratedSources);
