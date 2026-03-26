@@ -5,18 +5,9 @@ import { NotFoundError } from '@/utils/errors';
 
 // 1. Stealth Name Pool
 const stealthNames = [
-  'NebulaStream',
-  'NovaLink',
-  'QuantumPlayer',
-  'SolarisSource',
-  'AetherFlux',
-  'VortexVideo',
-  'ZenithMedia',
-  'PhantomStream',
-  'ArcaneLinks',
-  'ApexCinema',
-  'HorizonPlay',
-  'MidnightSource',
+  'NebulaStream', 'NovaLink', 'QuantumPlayer', 'SolarisSource',
+  'AetherFlux', 'VortexVideo', 'ZenithMedia', 'PhantomStream',
+  'ArcaneLinks', 'ApexCinema', 'HorizonPlay', 'MidnightSource',
 ];
 
 /**
@@ -65,15 +56,15 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
 }
 
 // 2. The Scraper Definitions
+// 🔥 SWAPPED: FlixHQ now has the higher rank (200) to be on top.
 const scrapers = [
+  { id: 'flixhq', emoji: '', baseRank: 200 },
   { id: 'moviebox', emoji: '🔥 ', baseRank: 180 },
-  { id: 'flixhq', emoji: '', baseRank: 173 },
 ];
 
 const finalSources: any[] = [];
 const currentPool = [...stealthNames];
 
-// Helper to get a truly unique name
 const pullName = () => {
   const idx = Math.floor(Math.random() * currentPool.length);
   return currentPool.splice(idx, 1)[0] || `Stream-${Math.random().toString(36).substr(2, 4)}`;
@@ -85,7 +76,7 @@ scrapers.forEach((config) => {
   const name1 = pullName();
   finalSources.push(
     makeSourcerer({
-      id: `yp-${config.id}-1`, // Unique ID: yp-moviebox-1
+      id: `yp-${config.id}-1`,
       name: `${config.emoji}${name1}`,
       rank: config.baseRank,
       flags: [flags.CORS_ALLOWED],
@@ -99,9 +90,9 @@ scrapers.forEach((config) => {
   const name2 = pullName();
   finalSources.push(
     makeSourcerer({
-      id: `yp-${config.id}-2`, // Unique ID: yp-moviebox-2
+      id: `yp-${config.id}-2`,
       name: `${config.emoji}${name2}`,
-      rank: config.baseRank - 1, // Slightly lower rank for the backup
+      rank: config.baseRank - 1,
       flags: [flags.CORS_ALLOWED],
       disabled: false,
       scrapeMovie: (ctx) => youPlexBridge(ctx, config.id),
@@ -110,5 +101,4 @@ scrapers.forEach((config) => {
   );
 });
 
-// ✨ This array will now contain 4 items: [MB-1, MB-2, FH-1, FH-2]
 export const youPlexSources = finalSources;
