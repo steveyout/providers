@@ -58,6 +58,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
 // 2. The Scraper Definitions
 // 🔥 SWAPPED: FlixHQ now has the higher rank (200) to be on top.
 const scrapers = [
+  { id: 'hdbox', emoji: '🔥🔥', baseRank: 210 },
   { id: 'flixhq', emoji: '', baseRank: 200 },
   { id: 'moviebox', emoji: '🔥 ', baseRank: 180 },
 ];
