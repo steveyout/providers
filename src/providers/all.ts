@@ -97,12 +97,16 @@ import { vidnestScraper } from './sources/vidnest';
 import { warezcdnScraper } from './sources/warezcdn';
 import { wecimaScraper } from './sources/wecima';
 import { zunimeScraper } from './sources/zunime';
+import { FerryScraper } from './sources/ferry';
+import { CineScraper } from './sources/cineminer';
 
 export function gatherAllSources(): Array<Sourcerer> {
   // all sources are gathered here
   return [
     ...youPlexSources,
     icefyScraper,
+    CineScraper,
+    FerryScraper,
     fsOnlineScraper,
     dopeboxScraper,
     cuevana3Scraper,
