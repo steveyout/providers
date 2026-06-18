@@ -36,7 +36,7 @@ export const FerryScraper = makeSourcerer({
   id: 'ferry',
   name: '🔥 Ferry',
   rank: 236,
-  disabled: false,
+  disabled: true,
   flags: [flags.CORS_ALLOWED],
   scrapeMovie: universalScraper,
   scrapeShow: universalScraper,

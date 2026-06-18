@@ -99,11 +99,13 @@ import { wecimaScraper } from './sources/wecima';
 import { zunimeScraper } from './sources/zunime';
 import { FerryScraper } from './sources/ferry';
 import { CineScraper } from './sources/cineminer';
+import { vidlinkScraper } from './sources/vidlink';
 
 export function gatherAllSources(): Array<Sourcerer> {
   // all sources are gathered here
   return [
     ...youPlexSources,
+    vidlinkScraper,
     icefyScraper,
     CineScraper,
     FerryScraper,

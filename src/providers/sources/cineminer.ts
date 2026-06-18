@@ -35,7 +35,7 @@ export const CineScraper = makeSourcerer({
   id: 'cineminer',
   name: '🔥 cineminer',
   rank: 240,
-  disabled: false,
+  disabled: true,
   flags: [flags.CORS_ALLOWED],
   scrapeMovie: universalScraper,
   scrapeShow: universalScraper,
