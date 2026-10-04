@@ -58,10 +58,12 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
 // 2. The Scraper Definitions
 // Higher rank values are listed first.
 const scrapers = [
-  { id: 'vidcore', emoji: '🔥🔥', baseRank: 210 },
-  { id: 'flixhq', emoji: '🔥🔥', baseRank: 200 },
-  { id: 'hdbox', emoji: '🔥', baseRank: 190 },
-  { id: 'moviebox', emoji: '🔥 ', baseRank: 180 },
+  { id: 'dexter', emoji: '🔥🔥', baseRank: 210 }, // ⚡ Primary: Sub-second (~0.5s) pure Axios, master HLS, 50+ subtitles, dexter.pw
+  { id: 'arrowtv', emoji: '🔥🔥', baseRank: 200 }, // ⚡ Primary: Sub-second (~0.4s) pure Axios, master HLS, 100+ subtitles, arrowtv.net
+  { id: 'pressplayz', emoji: '🔥🔥', baseRank: 190 }, // ⚡ Primary: Sub-second (~0.6s) pure Axios, 100+ subtitles, 200 OK via proxy
+  { id: 'rivestream', emoji: '🔥', baseRank: 180 }, // ⚡ Fast RiveStream (~0.5s) pure Axios, multi-source (PrimeVids, Vanguard 4K, Apogee)
+  { id: 'sevenmovies', emoji: '🔥', baseRank: 170 }, // ⚡ Fast Vidrift / 7movies (~0.7s) pure Axios, 1080p HLS, no Turnstile
+  { id: 'flixhq', emoji: '🔥', baseRank: 160 },
 ];
 
 const finalSources: any[] = [];
