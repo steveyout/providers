@@ -5,9 +5,18 @@ import { NotFoundError } from '@/utils/errors';
 
 // 1. Stealth Name Pool
 const stealthNames = [
-  'NebulaStream', 'NovaLink', 'QuantumPlayer', 'SolarisSource',
-  'AetherFlux', 'VortexVideo', 'ZenithMedia', 'PhantomStream',
-  'ArcaneLinks', 'ApexCinema', 'HorizonPlay', 'MidnightSource',
+  'NebulaStream',
+  'NovaLink',
+  'QuantumPlayer',
+  'SolarisSource',
+  'AetherFlux',
+  'VortexVideo',
+  'ZenithMedia',
+  'PhantomStream',
+  'ArcaneLinks',
+  'ApexCinema',
+  'HorizonPlay',
+  'MidnightSource',
 ];
 
 /**
