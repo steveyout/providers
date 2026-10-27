@@ -3,7 +3,7 @@ import { SourcererOutput, makeSourcerer } from '@/providers/base';
 import { MovieScrapeContext, ShowScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
 
-// 1. Stealth Name Pool
+// 1. Expanded Stealth Name Pool
 const stealthNames = [
   'NebulaStream',
   'NovaLink',
@@ -17,6 +17,24 @@ const stealthNames = [
   'ApexCinema',
   'HorizonPlay',
   'MidnightSource',
+  'CosmoStream',
+  'StarlightCinema',
+  'TitanPlayer',
+  'HyperionFlux',
+  'AuraVision',
+  'EclipseMedia',
+  'CelestePlay',
+  'OrionStream',
+  'ValkyrieVideo',
+  'SpectraLink',
+  'ChronosCinema',
+  'PulsePlayer',
+  'InfinityStream',
+  'AstroPlay',
+  'MirageSource',
+  'LuminaVision',
+  'ZenithCinema',
+  'VeloxStream',
 ];
 
 /**
@@ -38,8 +56,9 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
   ctx.progress(25);
 
   try {
-    const res = await ctx.fetcher(`${domain}/scrape`, { query });
-    if (!res || !res.success || !res.url) throw new NotFoundError(`No results`);
+    const res = await ctx.fetcher<any>(`${domain}/scrape`, { query });
+    const streamUrl = res?.url || res?.sources?.[0]?.url;
+    if (!res || !res.success || !streamUrl) throw new NotFoundError('No results');
     ctx.progress(95);
 
     return {
@@ -48,7 +67,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
         {
           id: 'primary',
           type: 'hls',
-          playlist: res.url,
+          playlist: streamUrl,
           flags: [flags.CORS_ALLOWED],
           captions: (res.subtitles || []).map((s: any) => ({
             id: s.url,
@@ -60,19 +79,24 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
       ],
     };
   } catch (e) {
-    throw new NotFoundError(`Bridge error`);
+    throw new NotFoundError('Bridge error');
   }
 }
 
 // 2. The Scraper Definitions
 // Higher rank values are listed first.
 const scrapers = [
-  { id: 'dexter', emoji: '🔥🔥', baseRank: 210 }, // ⚡ Primary: Sub-second (~0.5s) pure Axios, master HLS, 50+ subtitles, dexter.pw
-  { id: 'arrowtv', emoji: '🔥🔥', baseRank: 200 }, // ⚡ Primary: Sub-second (~0.4s) pure Axios, master HLS, 100+ subtitles, arrowtv.net
-  { id: 'pressplayz', emoji: '🔥🔥', baseRank: 190 }, // ⚡ Primary: Sub-second (~0.6s) pure Axios, 100+ subtitles, 200 OK via proxy
-  { id: 'rivestream', emoji: '🔥', baseRank: 180 }, // ⚡ Fast RiveStream (~0.5s) pure Axios, multi-source (PrimeVids, Vanguard 4K, Apogee)
-  { id: 'sevenmovies', emoji: '🔥', baseRank: 175 }, // ⚡ Fast Vidrift / 7movies (~0.7s) pure Axios, 1080p HLS, no Turnstile (175 to avoid 170 LookMovie & 169 Tugaflix rank collision)
-  { id: 'flixhq', emoji: '🔥', baseRank: 160 },
+  { id: 'chillflix', emoji: '🍿 ', baseRank: 260 }, // ⚡ Primary: Sub-second (~0.3s) pure Axios VAPlayer engine, master HLS, 100+ subtitles, chillflix.lol
+  { id: 'vidcore', emoji: '💎 ', baseRank: 250 },   // ⚡ Primary: Sub-second (~0.5s) pure Axios, 1080p HLS, 100+ subtitles, vidcore.org
+  { id: 'oneshows', emoji: '🚀 ', baseRank: 240 },  // ⚡ Primary: Sub-second (~0.5s) pure Axios WASM engine, 1080p HLS, 100+ subtitles, 1shows.org
+  { id: 'zetmoon', emoji: '🌙 ', baseRank: 230 },   // ⚡ Primary: Sub-second (~0.5s) pure Axios Orion engine, 1080p HLS, 100+ subtitles, zetmoon.live
+  { id: 'pressplayz', emoji: '🎬 ', baseRank: 220 }, // ⚡ Primary: Sub-second (~0.6s) pure Axios, 100+ subtitles, 200 OK via proxy
+  { id: 'dexter', emoji: '🔥 ', baseRank: 210 },     // ⚡ Primary: Fast pure Axios (~1.0s), master HLS, 50+ subtitles, dexter.pw
+  { id: 'kaizoku', emoji: '⚔️ ', baseRank: 200 },    // ⚡ Primary: Fast pure Axios (~1.0s), Orion 1080p HLS, 100+ subtitles, kaizoku.site
+  { id: 'arrowtv', emoji: '🏹 ', baseRank: 190 },    // ⚡ Primary: Fast pure Axios (~1.5s), master HLS / DASH, 100+ subtitles, arrowtv.net
+  { id: 'rivestream', emoji: '🌊 ', baseRank: 180 }, // ⚡ Fast RiveStream (~0.5s) pure Axios, multi-source (PrimeVids, Vanguard 4K, Apogee)
+  { id: 'sevenmovies', emoji: '👑 ', baseRank: 175 }, // ⚡ Fast Vidrift / 7movies (~0.7s) pure Axios, 1080p HLS, no Turnstile
+  { id: 'flixhq', emoji: '🛡️ ', baseRank: 165 },     // 🛡️ Reliable backup: JWPlayer extraction, 200 OK via proxy
 ];
 
 const finalSources: any[] = [];
