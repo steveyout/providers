@@ -86,6 +86,7 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
 // 2. The Scraper Definitions
 // Higher rank values are listed first.
 const scrapers = [
+  { id: 'cinecat', emoji: '🐾 ', baseRank: 275 }, // ⚡ Primary: Sub-second pure Axios ZCDN 4K engine, 100+ subtitles, cinecat.eu
   { id: 'novahd', emoji: '🦅 ', baseRank: 270 },
   { id: 'cinejoy', emoji: '✨ ', baseRank: 265 }, // ⚡ Primary: Sub-second pure WASM Lightspeed and Nebula engine, 1080p master HLS, cinejoy.pk // ⚡ Primary: Sub-second pure Axios Falcon engine, 1080p master HLS, novahd.cc
   { id: 'chillflix', emoji: '🍿 ', baseRank: 260 }, // ⚡ Primary: Sub-second (~0.3s) pure Axios VAPlayer engine, master HLS, 100+ subtitles, chillflix.lol
