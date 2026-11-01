@@ -61,45 +61,54 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
     if (!res || !res.success || !streamUrl) throw new NotFoundError('No results');
     ctx.progress(95);
 
+    const captions = (res.subtitles || []).map((s: any) => ({
+      id: s.url,
+      language: s.lang || s.label || s.language || 'English',
+      type: 'vtt' as const,
+      url: s.url,
+    }));
+
+    // If multiple stream sources are returned (e.g. Cinecat ZCDN 1/2/3, Cinejoy Lightspeed/Nebula), include all
+    const stream = res.sources && Array.isArray(res.sources) && res.sources.length > 0
+      ? res.sources.map((s: any, idx: number) => ({
+          id: s.name ? s.name.replace(/[^a-zA-Z0-9_-]/g, '_') : `server_${idx + 1}`,
+          type: 'hls' as const,
+          playlist: s.url,
+          flags: [flags.CORS_ALLOWED],
+          captions,
+        }))
+      : [
+          {
+            id: 'primary',
+            type: 'hls' as const,
+            playlist: streamUrl,
+            flags: [flags.CORS_ALLOWED],
+            captions,
+          },
+        ];
+
     return {
       embeds: [],
-      stream: [
-        {
-          id: 'primary',
-          type: 'hls',
-          playlist: streamUrl,
-          flags: [flags.CORS_ALLOWED],
-          captions: (res.subtitles || []).map((s: any) => ({
-            id: s.url,
-            language: s.lang || s.label || s.language || 'English',
-            type: 'vtt',
-            url: s.url,
-          })),
-        },
-      ],
+      stream,
     };
   } catch (e) {
     throw new NotFoundError('Bridge error');
   }
 }
 
-// 2. The Scraper Definitions
+// 2. The 10 Active, 100% Verified Production Scrapers
 // Higher rank values are listed first.
 const scrapers = [
-  { id: 'cinecat', emoji: '🐾 ', baseRank: 275 }, // ⚡ Primary: Sub-second pure Axios ZCDN 4K engine, 100+ subtitles, cinecat.eu
-  { id: 'novahd', emoji: '🦅 ', baseRank: 270 },
-  { id: 'cinejoy', emoji: '✨ ', baseRank: 265 }, // ⚡ Primary: Sub-second pure WASM Lightspeed and Nebula engine, 1080p master HLS, cinejoy.pk // ⚡ Primary: Sub-second pure Axios Falcon engine, 1080p master HLS, novahd.cc
-  { id: 'chillflix', emoji: '🍿 ', baseRank: 260 }, // ⚡ Primary: Sub-second (~0.3s) pure Axios VAPlayer engine, master HLS, 100+ subtitles, chillflix.lol
-  { id: 'vidcore', emoji: '💎 ', baseRank: 250 },   // ⚡ Primary: Sub-second (~0.5s) pure Axios, 1080p HLS, 100+ subtitles, vidcore.org
-  { id: 'oneshows', emoji: '🚀 ', baseRank: 240 },  // ⚡ Primary: Sub-second (~0.5s) pure Axios WASM engine, 1080p HLS, 100+ subtitles, 1shows.org
-  { id: 'zetmoon', emoji: '🌙 ', baseRank: 230 },   // ⚡ Primary: Sub-second (~0.5s) pure Axios Orion engine, 1080p HLS, 100+ subtitles, zetmoon.live
-  { id: 'pressplayz', emoji: '🎬 ', baseRank: 220 }, // ⚡ Primary: Sub-second (~0.6s) pure Axios, 100+ subtitles, 200 OK via proxy
-  { id: 'dexter', emoji: '🔥 ', baseRank: 210 },     // ⚡ Primary: Fast pure Axios (~1.0s), master HLS, 50+ subtitles, dexter.pw
-  { id: 'kaizoku', emoji: '⚔️ ', baseRank: 200 },    // ⚡ Primary: Fast pure Axios (~1.0s), Orion 1080p HLS, 100+ subtitles, kaizoku.site
-  { id: 'arrowtv', emoji: '🏹 ', baseRank: 190 },    // ⚡ Primary: Fast pure Axios (~1.5s), master HLS / DASH, 100+ subtitles, arrowtv.net
-  { id: 'rivestream', emoji: '🌊 ', baseRank: 180 }, // ⚡ Fast RiveStream (~0.5s) pure Axios, multi-source (PrimeVids, Vanguard 4K, Apogee)
-  { id: 'sevenmovies', emoji: '👑 ', baseRank: 175 }, // ⚡ Fast Vidrift / 7movies (~0.7s) pure Axios, 1080p HLS, no Turnstile
-  { id: 'flixhq', emoji: '🛡️ ', baseRank: 165 },     // 🛡️ Reliable backup: JWPlayer extraction, 200 OK via proxy
+  { id: 'cinecat', emoji: '🐾 ', baseRank: 300 },   // ⚡ Primary: Multi-worker ZCDN (ZCDN-1, ZCDN-2, ZCDN-3) 4K/1080p, cinecat.eu
+  { id: 'cinejoy', emoji: '✨ ', baseRank: 290 },   // ⚡ Primary: Multi-server WASM (Lightspeed, Nebula) 1080p, cinejoy.pk
+  { id: 'oneshows', emoji: '🚀 ', baseRank: 280 },  // ⚡ Primary: Pure Axios WASM 1shows/dcloud 1080p, 1shows.org
+  { id: 'pressplayz', emoji: '🎬 ', baseRank: 270 },// ⚡ Primary: Sub-second 1080p, 200 OK via proxy
+  { id: 'arrowtv', emoji: '🏹 ', baseRank: 260 },   // ⚡ Primary: PunkFlix 1080p HLS, arrowtv.net
+  { id: 'rivestream', emoji: '🌊 ', baseRank: 250 },// ⚡ Fast RiveStream multi-source (PrimeVids, Vanguard 4K)
+  { id: 'kaizoku', emoji: '⚔️ ', baseRank: 240 },   // ⚡ Fast Orion / VidRock 1080p, kaizoku.site
+  { id: 'chillflix', emoji: '🍿 ', baseRank: 230 }, // ⚡ VAPlayer 1080p, chillflix.lol
+  { id: 'zetmoon', emoji: '🌙 ', baseRank: 220 },   // ⚡ Orion 1080p, zetmoon.live
+  { id: 'vidcore', emoji: '💎 ', baseRank: 210 },   // ⚡ Rigel /vs/ open 1080p, vidcore.org
 ];
 
 const finalSources: any[] = [];
