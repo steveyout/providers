@@ -99,9 +99,9 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
 // 2. The 10 Active, 100% Verified Production Scrapers
 // Higher rank values are listed first.
 const scrapers = [
-  { id: 'cinecat', emoji: '🐾 ', baseRank: 300 },   // ⚡ Primary: Multi-worker ZCDN (ZCDN-1, ZCDN-2, ZCDN-3) 4K/1080p, cinecat.eu
-  { id: 'cinejoy', emoji: '✨ ', baseRank: 290 },   // ⚡ Primary: Multi-server WASM (Lightspeed, Nebula) 1080p, cinejoy.pk
-  { id: 'oneshows', emoji: '🚀 ', baseRank: 280 },  // ⚡ Primary: Pure Axios WASM 1shows/dcloud 1080p, 1shows.org
+  { id: 'cinejoy', emoji: '✨ ', baseRank: 300 },   // ⚡ Primary: Multi-server WASM (Lightspeed, Nebula) 1080p, cinejoy.pk
+  { id: 'oneshows', emoji: '🚀 ', baseRank: 295 },  // ⚡ Primary: Pure Axios WASM 1shows/dcloud 1080p, 1shows.org
+  { id: 'cinecat', emoji: '🐾 ', baseRank: 290 },   // ⚡ Multi-worker ZCDN (ZCDN-1, ZCDN-2, ZCDN-3) 4K/1080p, cinecat.eu
   { id: 'pressplayz', emoji: '🎬 ', baseRank: 270 },// ⚡ Primary: Sub-second 1080p, 200 OK via proxy
   { id: 'arrowtv', emoji: '🏹 ', baseRank: 260 },   // ⚡ Primary: PunkFlix 1080p HLS, arrowtv.net
   { id: 'rivestream', emoji: '🌊 ', baseRank: 250 },// ⚡ Fast RiveStream multi-source (PrimeVids, Vanguard 4K)
