@@ -1,41 +1,7 @@
 import { flags } from '@/entrypoint/utils/targets';
-import { SourcererOutput, makeSourcerer } from '@/providers/base';
+import { Sourcerer, SourcererOutput, makeSourcerer } from '@/providers/base';
 import { MovieScrapeContext, ShowScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
-
-// 1. Expanded Stealth Name Pool
-const stealthNames = [
-  'NebulaStream',
-  'NovaLink',
-  'QuantumPlayer',
-  'SolarisSource',
-  'AetherFlux',
-  'VortexVideo',
-  'ZenithMedia',
-  'PhantomStream',
-  'ArcaneLinks',
-  'ApexCinema',
-  'HorizonPlay',
-  'MidnightSource',
-  'CosmoStream',
-  'StarlightCinema',
-  'TitanPlayer',
-  'HyperionFlux',
-  'AuraVision',
-  'EclipseMedia',
-  'CelestePlay',
-  'OrionStream',
-  'ValkyrieVideo',
-  'SpectraLink',
-  'ChronosCinema',
-  'PulsePlayer',
-  'InfinityStream',
-  'AstroPlay',
-  'MirageSource',
-  'LuminaVision',
-  'ZenithCinema',
-  'VeloxStream',
-];
 
 /**
  * Universal Bridge Logic
@@ -96,37 +62,42 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
   }
 }
 
-// 2. The 10 Active, 100% Verified Production Scrapers
-// Higher rank values are listed first.
-const scrapers = [
-  { id: 'cinejoy', emoji: '✨ ', baseRank: 300 },   // ⚡ Primary: Multi-server WASM (Lightspeed, Nebula) 1080p, cinejoy.pk
-  { id: 'oneshows', emoji: '🚀 ', baseRank: 295 },  // ⚡ Primary: Pure Axios WASM 1shows/dcloud 1080p, 1shows.org
-  { id: 'cinecat', emoji: '🐾 ', baseRank: 290 },   // ⚡ Multi-worker ZCDN (ZCDN-1, ZCDN-2, ZCDN-3) 4K/1080p, cinecat.eu
-  { id: 'pressplayz', emoji: '🎬 ', baseRank: 270 },// ⚡ Primary: Sub-second 1080p, 200 OK via proxy
-  { id: 'arrowtv', emoji: '🏹 ', baseRank: 260 },   // ⚡ Primary: PunkFlix 1080p HLS, arrowtv.net
-  { id: 'rivestream', emoji: '🌊 ', baseRank: 250 },// ⚡ Fast RiveStream multi-source (PrimeVids, Vanguard 4K)
-  { id: 'kaizoku', emoji: '⚔️ ', baseRank: 240 },   // ⚡ Fast Orion / VidRock 1080p, kaizoku.site
-  { id: 'chillflix', emoji: '🍿 ', baseRank: 230 }, // ⚡ VAPlayer 1080p, chillflix.lol
-  { id: 'zetmoon', emoji: '🌙 ', baseRank: 220 },   // ⚡ Orion 1080p, zetmoon.live
-  { id: 'vidcore', emoji: '💎 ', baseRank: 210 },   // ⚡ Rigel /vs/ open 1080p, vidcore.org
+// 2. Active Production Scrapers with Distinct Names & Emojis
+// Primary (-1) and Duplicate/Backup (-2) each have their own unique, non-colliding names and emojis
+interface YouPlexScraperConfig {
+  id: string;
+  primaryEmoji: string;
+  backupEmoji: string;
+  primaryName: string;
+  backupName: string;
+  baseRank: number;
+}
+
+const scrapers: YouPlexScraperConfig[] = [
+  { id: 'taroflix', primaryEmoji: '? ', backupEmoji: '?? ', primaryName: 'Starkio', backupName: 'Cipher', baseRank: 440 },
+  { id: 'cinemaos', primaryEmoji: '?? ', backupEmoji: '??? ', primaryName: 'Screenscape', backupName: 'MovieBox', baseRank: 430 },
+  { id: 'cno', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Titan', backupName: 'Aether', baseRank: 420 },
+  { id: 'cinejoy', primaryEmoji: '? ', backupEmoji: '?? ', primaryName: 'Aurora', backupName: 'Celestial', baseRank: 410 },
+  { id: 'oneshows', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Nova', backupName: 'Zenith', baseRank: 400 },
+  { id: 'cinecat', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Shadow', backupName: 'Lynx', baseRank: 390 },
+  { id: 'pressplayz', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Midnight', backupName: 'Quantum', baseRank: 380 },
+  { id: 'arrowtv', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Apex', backupName: 'Valkyrie', baseRank: 370 },
+  { id: 'rivestream', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Nebula', backupName: 'Arcane', baseRank: 360 },
+  { id: 'kaizoku', primaryEmoji: '?? ', backupEmoji: '??? ', primaryName: 'Vortex', backupName: 'Ronin', baseRank: 350 },
+  { id: 'chillflix', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Frost', backupName: 'Solstice', baseRank: 340 },
+  { id: 'zetmoon', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Eclipse', backupName: 'Lunar', baseRank: 330 },
+  { id: 'vidcore', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Quasar', backupName: 'Hyperion', baseRank: 320 },
 ];
 
-const finalSources: any[] = [];
-const currentPool = [...stealthNames];
+const finalSources: Sourcerer[] = [];
 
-const pullName = () => {
-  const idx = Math.floor(Math.random() * currentPool.length);
-  return currentPool.splice(idx, 1)[0] || `Stream-${Math.random().toString(36).substr(2, 4)}`;
-};
-
-// 3. Explicit Generation
+// 3. Explicit Generation with Distinct Identities
 scrapers.forEach((config) => {
   // Version 1 (Primary)
-  const name1 = pullName();
   finalSources.push(
     makeSourcerer({
       id: `yp-${config.id}-1`,
-      name: `${config.emoji}${name1}`,
+      name: `${config.primaryEmoji}${config.primaryName}`,
       rank: config.baseRank,
       flags: [flags.CORS_ALLOWED],
       disabled: false,
@@ -135,12 +106,11 @@ scrapers.forEach((config) => {
     }),
   );
 
-  // Version 2 (Backup)
-  const name2 = pullName();
+  // Version 2 (Backup / Duplicate with distinct name and emoji)
   finalSources.push(
     makeSourcerer({
       id: `yp-${config.id}-2`,
-      name: `${config.emoji}${name2}`,
+      name: `${config.backupEmoji}${config.backupName}`,
       rank: config.baseRank - 1,
       flags: [flags.CORS_ALLOWED],
       disabled: false,
