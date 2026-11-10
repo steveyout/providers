@@ -35,23 +35,24 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
     }));
 
     // If multiple stream sources are returned (e.g. Cinecat ZCDN 1/2/3, Cinejoy Lightspeed/Nebula), include all
-    const stream = res.sources && Array.isArray(res.sources) && res.sources.length > 0
-      ? res.sources.map((s: any, idx: number) => ({
-          id: s.name ? s.name.replace(/[^a-zA-Z0-9_-]/g, '_') : `server_${idx + 1}`,
-          type: 'hls' as const,
-          playlist: s.url,
-          flags: [flags.CORS_ALLOWED],
-          captions,
-        }))
-      : [
-          {
-            id: 'primary',
+    const stream =
+      res.sources && Array.isArray(res.sources) && res.sources.length > 0
+        ? res.sources.map((s: any, idx: number) => ({
+            id: s.name ? s.name.replace(/[^a-zA-Z0-9_-]/g, '_') : `server_${idx + 1}`,
             type: 'hls' as const,
-            playlist: streamUrl,
+            playlist: s.url,
             flags: [flags.CORS_ALLOWED],
             captions,
-          },
-        ];
+          }))
+        : [
+            {
+              id: 'primary',
+              type: 'hls' as const,
+              playlist: streamUrl,
+              flags: [flags.CORS_ALLOWED],
+              captions,
+            },
+          ];
 
     return {
       embeds: [],
@@ -74,19 +75,142 @@ interface YouPlexScraperConfig {
 }
 
 const scrapers: YouPlexScraperConfig[] = [
-  { id: 'taroflix', primaryEmoji: '? ', backupEmoji: '?? ', primaryName: 'Starkio', backupName: 'Cipher', baseRank: 440 },
-  { id: 'cinemaos', primaryEmoji: '?? ', backupEmoji: '??? ', primaryName: 'Screenscape', backupName: 'MovieBox', baseRank: 430 },
-  { id: 'cno', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Titan', backupName: 'Aether', baseRank: 420 },
-  { id: 'cinejoy', primaryEmoji: '? ', backupEmoji: '?? ', primaryName: 'Aurora', backupName: 'Celestial', baseRank: 410 },
-  { id: 'oneshows', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Nova', backupName: 'Zenith', baseRank: 400 },
-  { id: 'cinecat', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Shadow', backupName: 'Lynx', baseRank: 390 },
-  { id: 'pressplayz', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Midnight', backupName: 'Quantum', baseRank: 380 },
-  { id: 'arrowtv', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Apex', backupName: 'Valkyrie', baseRank: 370 },
-  { id: 'rivestream', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Nebula', backupName: 'Arcane', baseRank: 360 },
-  { id: 'kaizoku', primaryEmoji: '?? ', backupEmoji: '??? ', primaryName: 'Vortex', backupName: 'Ronin', baseRank: 350 },
-  { id: 'chillflix', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Frost', backupName: 'Solstice', baseRank: 340 },
-  { id: 'zetmoon', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Eclipse', backupName: 'Lunar', baseRank: 330 },
-  { id: 'vidcore', primaryEmoji: '?? ', backupEmoji: '?? ', primaryName: 'Quasar', backupName: 'Hyperion', baseRank: 320 },
+  {
+    id: 'aether',
+    primaryEmoji: '⚡ ',
+    backupEmoji: '✨ ',
+    primaryName: 'Aether',
+    backupName: 'Aetheris',
+    baseRank: 470,
+  },
+  {
+    id: 'vidlink',
+    primaryEmoji: '🔗 ',
+    backupEmoji: '🌐 ',
+    primaryName: 'VidLink',
+    backupName: 'Nexus',
+    baseRank: 460,
+  },
+  {
+    id: 'bingebang',
+    primaryEmoji: '💥 ',
+    backupEmoji: '🚀 ',
+    primaryName: 'BingeBang',
+    backupName: 'BangStream',
+    baseRank: 455,
+  },
+  {
+    id: 'zoechip',
+    primaryEmoji: '💎 ',
+    backupEmoji: '🔮 ',
+    primaryName: 'Zoechip',
+    backupName: 'ZoeStream',
+    baseRank: 450,
+  },
+  {
+    id: 'taroflix',
+    primaryEmoji: '⭐ ',
+    backupEmoji: '🌟 ',
+    primaryName: 'Starkio',
+    backupName: 'Cipher',
+    baseRank: 440,
+  },
+  {
+    id: 'cinemaos',
+    primaryEmoji: '🎬 ',
+    backupEmoji: '📽️ ',
+    primaryName: 'Screenscape',
+    backupName: 'MovieBox',
+    baseRank: 430,
+  },
+  {
+    id: 'cno',
+    primaryEmoji: '🪐 ',
+    backupEmoji: '🌌 ',
+    primaryName: 'Titan',
+    backupName: 'Atlas',
+    baseRank: 420,
+  },
+  {
+    id: 'cinejoy',
+    primaryEmoji: '🎆 ',
+    backupEmoji: '🎇 ',
+    primaryName: 'Aurora',
+    backupName: 'Celestial',
+    baseRank: 410,
+  },
+  {
+    id: 'oneshows',
+    primaryEmoji: '💫 ',
+    backupEmoji: '🌠 ',
+    primaryName: 'Nova',
+    backupName: 'Zenith',
+    baseRank: 400,
+  },
+  {
+    id: 'cinecat',
+    primaryEmoji: '🐱 ',
+    backupEmoji: '🐾 ',
+    primaryName: 'Shadow',
+    backupName: 'Lynx',
+    baseRank: 390,
+  },
+  {
+    id: 'pressplayz',
+    primaryEmoji: '▶️ ',
+    backupEmoji: '⚡ ',
+    primaryName: 'Midnight',
+    backupName: 'Quantum',
+    baseRank: 380,
+  },
+  {
+    id: 'arrowtv',
+    primaryEmoji: '🏹 ',
+    backupEmoji: '🎯 ',
+    primaryName: 'Apex',
+    backupName: 'Valkyrie',
+    baseRank: 370,
+  },
+  {
+    id: 'rivestream',
+    primaryEmoji: '🌊 ',
+    backupEmoji: '💧 ',
+    primaryName: 'Nebula',
+    backupName: 'Arcane',
+    baseRank: 360,
+  },
+  {
+    id: 'kaizoku',
+    primaryEmoji: '🏴‍☠️ ',
+    backupEmoji: '⚔️ ',
+    primaryName: 'Vortex',
+    backupName: 'Ronin',
+    baseRank: 350,
+  },
+  {
+    id: 'chillflix',
+    primaryEmoji: '❄️ ',
+    backupEmoji: '🧊 ',
+    primaryName: 'Frost',
+    backupName: 'Solstice',
+    baseRank: 340,
+  },
+  {
+    id: 'zetmoon',
+    primaryEmoji: '🌙 ',
+    backupEmoji: '🌕 ',
+    primaryName: 'Eclipse',
+    backupName: 'Lunar',
+    baseRank: 330,
+  },
+  {
+    id: 'vidcore',
+    primaryEmoji: '🔋 ',
+    backupEmoji: '⚙️ ',
+    primaryName: 'Quasar',
+    backupName: 'Hyperion',
+    baseRank: 320,
+  },
 ];
 
 const finalSources: Sourcerer[] = [];
