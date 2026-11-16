@@ -76,20 +76,12 @@ interface YouPlexScraperConfig {
 
 const scrapers: YouPlexScraperConfig[] = [
   {
-    id: 'aether',
-    primaryEmoji: '⚡ ',
-    backupEmoji: '✨ ',
-    primaryName: 'Aether',
-    backupName: 'Aetheris',
-    baseRank: 470,
-  },
-  {
-    id: 'vidlink',
-    primaryEmoji: '🔗 ',
-    backupEmoji: '🌐 ',
-    primaryName: 'VidLink',
-    backupName: 'Nexus',
-    baseRank: 460,
+    id: 'zoechip',
+    primaryEmoji: '💎 ',
+    backupEmoji: '🔮 ',
+    primaryName: 'Zoechip',
+    backupName: 'ZoeStream',
+    baseRank: 480,
   },
   {
     id: 'bingebang',
@@ -97,15 +89,7 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '🚀 ',
     primaryName: 'BingeBang',
     backupName: 'BangStream',
-    baseRank: 455,
-  },
-  {
-    id: 'zoechip',
-    primaryEmoji: '💎 ',
-    backupEmoji: '🔮 ',
-    primaryName: 'Zoechip',
-    backupName: 'ZoeStream',
-    baseRank: 450,
+    baseRank: 475,
   },
   {
     id: 'taroflix',
@@ -113,7 +97,7 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '🌟 ',
     primaryName: 'Starkio',
     backupName: 'Cipher',
-    baseRank: 440,
+    baseRank: 470,
   },
   {
     id: 'cinemaos',
@@ -121,7 +105,23 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '📽️ ',
     primaryName: 'Screenscape',
     backupName: 'MovieBox',
-    baseRank: 430,
+    baseRank: 465,
+  },
+  {
+    id: 'aether',
+    primaryEmoji: '⚡ ',
+    backupEmoji: '✨ ',
+    primaryName: 'Aether',
+    backupName: 'Aetheris',
+    baseRank: 460,
+  },
+  {
+    id: 'vidlink',
+    primaryEmoji: '🔗 ',
+    backupEmoji: '🌐 ',
+    primaryName: 'VidLink',
+    backupName: 'Nexus',
+    baseRank: 455,
   },
   {
     id: 'cno',
@@ -129,7 +129,7 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '🌌 ',
     primaryName: 'Titan',
     backupName: 'Atlas',
-    baseRank: 420,
+    baseRank: 450,
   },
   {
     id: 'cinejoy',
@@ -137,7 +137,7 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '🎇 ',
     primaryName: 'Aurora',
     backupName: 'Celestial',
-    baseRank: 410,
+    baseRank: 440,
   },
   {
     id: 'oneshows',
@@ -145,7 +145,7 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '🌠 ',
     primaryName: 'Nova',
     backupName: 'Zenith',
-    baseRank: 400,
+    baseRank: 430,
   },
   {
     id: 'cinecat',
@@ -153,7 +153,7 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '🐾 ',
     primaryName: 'Shadow',
     backupName: 'Lynx',
-    baseRank: 390,
+    baseRank: 420,
   },
   {
     id: 'pressplayz',
@@ -161,7 +161,7 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '⚡ ',
     primaryName: 'Midnight',
     backupName: 'Quantum',
-    baseRank: 380,
+    baseRank: 410,
   },
   {
     id: 'arrowtv',
@@ -169,7 +169,7 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '🎯 ',
     primaryName: 'Apex',
     backupName: 'Valkyrie',
-    baseRank: 370,
+    baseRank: 400,
   },
   {
     id: 'rivestream',
@@ -177,7 +177,7 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '💧 ',
     primaryName: 'Nebula',
     backupName: 'Arcane',
-    baseRank: 360,
+    baseRank: 390,
   },
   {
     id: 'kaizoku',
@@ -185,7 +185,7 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '⚔️ ',
     primaryName: 'Vortex',
     backupName: 'Ronin',
-    baseRank: 350,
+    baseRank: 380,
   },
   {
     id: 'chillflix',
@@ -193,7 +193,7 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '🧊 ',
     primaryName: 'Frost',
     backupName: 'Solstice',
-    baseRank: 340,
+    baseRank: 370,
   },
   {
     id: 'zetmoon',
@@ -201,7 +201,7 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '🌕 ',
     primaryName: 'Eclipse',
     backupName: 'Lunar',
-    baseRank: 330,
+    baseRank: 360,
   },
   {
     id: 'vidcore',
@@ -209,7 +209,7 @@ const scrapers: YouPlexScraperConfig[] = [
     backupEmoji: '⚙️ ',
     primaryName: 'Quasar',
     backupName: 'Hyperion',
-    baseRank: 320,
+    baseRank: 350,
   },
 ];
 
