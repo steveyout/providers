@@ -43,54 +43,55 @@ export function makeAnimetsuEmbed(id: string, rank: number = 100) {
 
       console.log('Animetsu API Response:', JSON.stringify(res, null, 2));
 
-      const source = res?.sources?.[0];
-      if (!source?.url) throw new NotFoundError('No source URL found');
-
-      const streamUrl = source.url;
-      const sourceType = source.type;
-      const sourceQuality = source.quality;
+      const sources = Array.isArray(res?.sources) ? res.sources : (res?.sources ? [res.sources] : []);
+      if (!sources.length) throw new NotFoundError('No source URL found');
 
       ctx.progress(100);
 
-      if (sourceType === 'mp4') {
-        let qualityKey: string | number = 'unknown';
-        if (sourceQuality) {
-          const qualityMatch = sourceQuality.match(/(\d+)p?/);
-          if (qualityMatch) {
-            qualityKey = parseInt(qualityMatch[1], 10);
+      const streams: any[] = [];
+      const qualityMap: Record<number, { type: 'mp4'; url: string }> = {};
+
+      for (const src of sources) {
+        if (!src?.url) continue;
+        if (src.type === 'mp4') {
+          let qualityKey: number = 1080;
+          if (src.quality) {
+            const qualityMatch = src.quality.match(/(\d+)p?/);
+            if (qualityMatch) qualityKey = parseInt(qualityMatch[1], 10);
           }
-        }
-
-        return {
-          stream: [
-            {
-              id: 'primary',
-              captions: [],
-              qualities: {
-                [qualityKey]: {
-                  type: 'mp4',
-                  url: streamUrl,
-                },
-              },
-              type: 'file',
-              headers,
-              flags: [],
-            },
-          ],
-        };
-      }
-
-      return {
-        stream: [
-          {
-            id: 'primary',
-            type: 'hls',
-            playlist: streamUrl,
+          if (!qualityMap[qualityKey]) {
+            qualityMap[qualityKey] = {
+              type: 'mp4',
+              url: src.url,
+            };
+          }
+        } else {
+          streams.push({
+            id: src.name || `animetsu_${streams.length + 1}`,
+            type: 'hls' as const,
+            playlist: src.url,
             headers,
             flags: [],
             captions: [],
-          },
-        ],
+          });
+        }
+      }
+
+      if (Object.keys(qualityMap).length > 0) {
+        streams.push({
+          id: 'primary',
+          captions: [],
+          qualities: qualityMap,
+          type: 'file',
+          headers,
+          flags: [],
+        });
+      }
+
+      if (streams.length === 0) throw new NotFoundError('No playable stream found');
+
+      return {
+        stream: streams,
       };
     },
   });

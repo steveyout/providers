@@ -86,19 +86,45 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
 
   ctx.progress(90);
 
+  const streams: any[] = [];
+
+  if (stream.playlist) {
+    streams.push({
+      id: 'hls-auto',
+      type: 'hls' as const,
+      playlist: stream.playlist,
+      captions,
+      flags: [],
+      headers: stream.headers || headers,
+    });
+  }
+
+  if (stream.qualities && typeof stream.qualities === 'object' && Object.keys(stream.qualities).length > 0) {
+    streams.push({
+      id: 'file-qualities',
+      type: 'file' as const,
+      qualities: stream.qualities,
+      captions,
+      flags: [],
+      headers: stream.headers || headers,
+    });
+  }
+
+  if (streams.length === 0) {
+    streams.push({
+      id: stream.id || 'primary',
+      type: stream.type || (stream.playlist ? 'hls' : 'file'),
+      qualities: stream.qualities || {},
+      playlist: stream.playlist,
+      captions,
+      flags: [],
+      headers: stream.headers || headers,
+    });
+  }
+
   return {
     embeds: [],
-    stream: [
-      {
-        id: stream.id || 'primary',
-        type: stream.type || 'file',
-        qualities: stream.qualities || {},
-        playlist: stream.playlist,
-        captions,
-        flags: [],
-        headers: stream.headers || headers,
-      },
-    ],
+    stream: streams,
   };
 }
 

@@ -76,7 +76,7 @@ export const upcloudScraper = makeEmbed({
       },
     });
 
-    let sources: { file: string; type: string } | null = null;
+    let sources: { file: string; type: string }[] | null = null;
 
     if (!isJSON(streamRes.sources)) {
       const scriptJs = await ctx.proxiedFetcher<string>(`https://rabbitstream.net/js/player/prod/e4-player.min.js`, {
@@ -100,9 +100,10 @@ export const upcloudScraper = makeEmbed({
       });
 
       const decryptedStream = AES.decrypt(strippedSources, extractedKey).toString(enc.Utf8);
-      const parsedStream = JSON.parse(decryptedStream)[0];
-      if (!parsedStream) throw new Error('No stream found');
-      sources = parsedStream;
+      const parsedStream = JSON.parse(decryptedStream);
+      const parsedStreams = Array.isArray(parsedStream) ? parsedStream : [parsedStream];
+      if (!parsedStreams.length || !parsedStreams[0]?.file) throw new Error('No stream found');
+      sources = parsedStreams;
     }
 
     if (!sources) throw new Error('upcloud source not found');
@@ -124,19 +125,17 @@ export const upcloudScraper = makeEmbed({
     });
 
     return {
-      stream: [
-        {
-          id: 'primary',
-          type: 'hls',
-          playlist: sources.file,
-          flags: [flags.CORS_ALLOWED],
-          captions,
-          preferredHeaders: {
-            Referer: referer,
-            Origin: origin,
-          },
+      stream: sources.filter(s => s && s.file).map((s, idx) => ({
+        id: `upcloud_${idx + 1}`,
+        type: 'hls' as const,
+        playlist: s.file,
+        flags: [flags.CORS_ALLOWED],
+        captions,
+        preferredHeaders: {
+          Referer: referer,
+          Origin: origin,
         },
-      ],
+      })),
     };
   },
 });

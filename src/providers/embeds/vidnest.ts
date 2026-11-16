@@ -87,19 +87,17 @@ export function makeVidnestEmbed(id: string, rank: number = 100) {
       ctx.progress(100);
 
       return {
-        stream: [
-          {
-            id,
-            type: 'hls',
-            playlist: streams[0],
-            headers: {
-              Origin: config?.origin,
-              Referer: config?.referer,
-            },
-            flags: [],
-            captions: [],
+        stream: streams.map((sUrl, idx) => ({
+          id: `${id}_${idx + 1}`,
+          type: 'hls' as const,
+          playlist: sUrl,
+          headers: {
+            Origin: config?.origin,
+            Referer: config?.referer,
           },
-        ],
+          flags: [],
+          captions: [],
+        })),
       };
     },
   });

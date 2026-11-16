@@ -20,22 +20,25 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
   });
 
   if (!apiRes) throw new NotFoundError('Failed to fetch video source');
-  if (!apiRes.sources[0].file) throw new NotFoundError('No video source found');
-  ctx.progress(50);
+  const rawSources = Array.isArray(apiRes.sources) ? apiRes.sources : (apiRes.sources ? [apiRes.sources] : []);
+  const streams = rawSources
+    .filter((s: any) => s && s.file)
+    .map((s: any, idx: number) => ({
+      id: s.label || s.title || `stream_${idx + 1}`,
+      type: 'hls' as const,
+      playlist: s.file,
+      flags: [flags.CORS_ALLOWED],
+      captions: [],
+    }));
 
+  if (streams.length === 0) throw new NotFoundError('No video source found');
+
+  ctx.progress(50);
   ctx.progress(90);
 
   return {
     embeds: [],
-    stream: [
-      {
-        id: 'primary',
-        type: 'hls',
-        playlist: apiRes.sources[0].file,
-        flags: [flags.CORS_ALLOWED],
-        captions: [],
-      },
-    ],
+    stream: streams,
   };
 }
 

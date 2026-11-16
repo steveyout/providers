@@ -9,12 +9,13 @@ import { ScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
 import { reorderOnIdList } from '@/utils/list';
 import { requiresProxy, setupProxy } from '@/utils/proxy';
-import { isValidStream, validatePlayableStream } from '@/utils/valid';
+import { isValidStream, validatePlayableStream, validatePlayableStreams } from '@/utils/valid';
 
 export type RunOutput = {
   sourceId: string;
   embedId?: string;
   stream: Stream;
+  streams?: Stream[];
 };
 
 export type SourceRunOutput = {
@@ -110,14 +111,15 @@ export async function runAllProviders(list: ProviderList, ops: ProviderRunnerOpt
     if (!output) throw new Error('Invalid media type');
 
     // return stream if there are any
-    if (output.stream?.[0]) {
+    if (output.stream && output.stream.length > 0) {
       try {
-        const playableStream = await validatePlayableStream(output.stream[0], ops, source.id);
-        if (!playableStream) throw new NotFoundError('No streams found');
+        const playableStreams = await validatePlayableStreams(output.stream, ops, source.id);
+        if (playableStreams.length === 0) throw new NotFoundError('No playable streams found');
 
         return {
           sourceId: source.id,
-          stream: playableStream,
+          stream: playableStreams[0],
+          streams: playableStreams,
         };
       } catch (error) {
         const updateParams: UpdateEvent = {
@@ -173,10 +175,10 @@ export async function runAllProviders(list: ProviderList, ops: ProviderRunnerOpt
         if (embedOutput.stream.length === 0) {
           throw new NotFoundError('No streams found');
         }
-        const playableStream = await validatePlayableStream(embedOutput.stream[0], ops, embed.embedId);
-        if (!playableStream) throw new NotFoundError('No streams found');
+        const playableStreams = await validatePlayableStreams(embedOutput.stream, ops, embed.embedId);
+        if (playableStreams.length === 0) throw new NotFoundError('No streams found');
 
-        embedOutput.stream = [playableStream];
+        embedOutput.stream = playableStreams;
       } catch (error) {
         const updateParams: UpdateEvent = {
           id,
@@ -194,6 +196,7 @@ export async function runAllProviders(list: ProviderList, ops: ProviderRunnerOpt
         sourceId: source.id,
         embedId: scraper.id,
         stream: embedOutput.stream[0],
+        streams: embedOutput.stream,
       };
     }
   }
