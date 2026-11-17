@@ -64,7 +64,8 @@ async function youPlexBridge(ctx: ShowScrapeContext | MovieScrapeContext, scrape
 }
 
 // 2. Active Production Scrapers with Distinct Names & Emojis
-// Primary (-1) and Duplicate/Backup (-2) each have their own unique, non-colliding names and emojis
+// Primary (-1) is registered for all scrapers.
+// Duplicate/Backup (-2) is only registered if the scraper uses Playwright.
 interface YouPlexScraperConfig {
   id: string;
   primaryEmoji: string;
@@ -72,9 +73,19 @@ interface YouPlexScraperConfig {
   primaryName: string;
   backupName: string;
   baseRank: number;
+  usesPlaywright?: boolean;
 }
 
 const scrapers: YouPlexScraperConfig[] = [
+  {
+    id: 'movi47',
+    primaryEmoji: '🏰 ',
+    backupEmoji: '👑 ',
+    primaryName: 'Movi47',
+    backupName: 'WhyWorry',
+    baseRank: 485,
+    usesPlaywright: false,
+  },
   {
     id: 'zoechip',
     primaryEmoji: '💎 ',
@@ -82,6 +93,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Zoechip',
     backupName: 'ZoeStream',
     baseRank: 480,
+    usesPlaywright: false,
   },
   {
     id: 'bingebang',
@@ -90,6 +102,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'BingeBang',
     backupName: 'BangStream',
     baseRank: 475,
+    usesPlaywright: false,
   },
   {
     id: 'taroflix',
@@ -98,6 +111,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Starkio',
     backupName: 'Cipher',
     baseRank: 470,
+    usesPlaywright: false,
   },
   {
     id: 'cinemaos',
@@ -106,6 +120,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Screenscape',
     backupName: 'MovieBox',
     baseRank: 465,
+    usesPlaywright: false,
   },
   {
     id: 'aether',
@@ -114,6 +129,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Aether',
     backupName: 'Aetheris',
     baseRank: 460,
+    usesPlaywright: false,
   },
   {
     id: 'vidlink',
@@ -122,6 +138,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'VidLink',
     backupName: 'Nexus',
     baseRank: 455,
+    usesPlaywright: false,
   },
   {
     id: 'cno',
@@ -130,6 +147,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Titan',
     backupName: 'Atlas',
     baseRank: 450,
+    usesPlaywright: false,
   },
   {
     id: 'cinejoy',
@@ -138,6 +156,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Aurora',
     backupName: 'Celestial',
     baseRank: 440,
+    usesPlaywright: false,
   },
   {
     id: 'oneshows',
@@ -146,6 +165,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Nova',
     backupName: 'Zenith',
     baseRank: 430,
+    usesPlaywright: false,
   },
   {
     id: 'cinecat',
@@ -154,6 +174,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Shadow',
     backupName: 'Lynx',
     baseRank: 420,
+    usesPlaywright: false,
   },
   {
     id: 'pressplayz',
@@ -162,6 +183,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Midnight',
     backupName: 'Quantum',
     baseRank: 410,
+    usesPlaywright: false,
   },
   {
     id: 'arrowtv',
@@ -170,6 +192,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Apex',
     backupName: 'Valkyrie',
     baseRank: 400,
+    usesPlaywright: false,
   },
   {
     id: 'rivestream',
@@ -178,6 +201,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Nebula',
     backupName: 'Arcane',
     baseRank: 390,
+    usesPlaywright: false,
   },
   {
     id: 'kaizoku',
@@ -186,6 +210,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Vortex',
     backupName: 'Ronin',
     baseRank: 380,
+    usesPlaywright: false,
   },
   {
     id: 'chillflix',
@@ -194,6 +219,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Frost',
     backupName: 'Solstice',
     baseRank: 370,
+    usesPlaywright: false,
   },
   {
     id: 'zetmoon',
@@ -202,6 +228,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Eclipse',
     backupName: 'Lunar',
     baseRank: 360,
+    usesPlaywright: false,
   },
   {
     id: 'vidcore',
@@ -210,6 +237,7 @@ const scrapers: YouPlexScraperConfig[] = [
     primaryName: 'Quasar',
     backupName: 'Hyperion',
     baseRank: 350,
+    usesPlaywright: false,
   },
 ];
 
@@ -230,18 +258,20 @@ scrapers.forEach((config) => {
     }),
   );
 
-  // Version 2 (Backup / Duplicate with distinct name and emoji)
-  finalSources.push(
-    makeSourcerer({
-      id: `yp-${config.id}-2`,
-      name: `${config.backupEmoji}${config.backupName}`,
-      rank: config.baseRank - 1,
-      flags: [flags.CORS_ALLOWED],
-      disabled: false,
-      scrapeMovie: (ctx) => youPlexBridge(ctx, config.id),
-      scrapeShow: (ctx) => youPlexBridge(ctx, config.id),
-    }),
-  );
+  // Version 2 (Backup / Duplicate) - ONLY added if the source uses Playwright
+  if (config.usesPlaywright) {
+    finalSources.push(
+      makeSourcerer({
+        id: `yp-${config.id}-2`,
+        name: `${config.backupEmoji}${config.backupName}`,
+        rank: config.baseRank - 1,
+        flags: [flags.CORS_ALLOWED],
+        disabled: false,
+        scrapeMovie: (ctx) => youPlexBridge(ctx, config.id),
+        scrapeShow: (ctx) => youPlexBridge(ctx, config.id),
+      }),
+    );
+  }
 });
 
 export const youPlexSources = finalSources;
